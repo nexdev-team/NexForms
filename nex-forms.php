@@ -34,6 +34,7 @@ NexForms_Updater::init();
 add_action( 'init', static function () {
 	load_plugin_textdomain( 'nex-forms', false, dirname( plugin_basename( NEXFORMS_FILE ) ) . '/languages' );
 	NexForms_Forms::register_post_type();
+	NexForms_Forms::maybe_upgrade();
 	NexForms_Render::register();
 } );
 

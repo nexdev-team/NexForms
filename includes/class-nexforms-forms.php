@@ -114,6 +114,32 @@ final class NexForms_Forms {
 		return (int) $result;
 	}
 
+	/**
+	 * One-off upgrade: give every existing form a valid shortcode name (from its title, else form-<id>).
+	 * Runs once per plugin version change.
+	 */
+	public static function maybe_upgrade(): void {
+		if ( get_option( 'nexforms_version' ) === NEXFORMS_VERSION ) {
+			return;
+		}
+		$posts = get_posts(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => array( 'publish', 'draft' ),
+				'posts_per_page' => -1,
+			)
+		);
+		foreach ( $posts as $p ) {
+			if ( self::valid_slug( $p->post_name ) ) {
+				continue;
+			}
+			$slug = NexForms_Schema::slugify( $p->post_title );
+			$slug = '' !== $slug ? $slug : 'form-' . $p->ID;
+			wp_update_post( array( 'ID' => $p->ID, 'post_name' => wp_unique_post_slug( $slug, $p->ID, 'publish', self::POST_TYPE, 0 ) ) );
+		}
+		update_option( 'nexforms_version', NEXFORMS_VERSION, true );
+	}
+
 	/** Find a form by numeric ID or by its shortcode name. */
 	public static function find( string $ref ): ?array {
 		$ref = trim( $ref );

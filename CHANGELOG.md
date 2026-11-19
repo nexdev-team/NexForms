@@ -5,7 +5,7 @@ Plugins → NexForms → View details. Write it in English, for site owners: wha
 
 ## 0.1.3
 
-- **Form names in shortcodes.** Give each form a name under Form → *Form name* and use `[nexform name="contact-bg"]` instead of a number. Names are created from the title (Greek and Bulgarian are transliterated), must be unique, and can be changed at any time. Existing `[nexform id="…"]` shortcodes keep working.
+- **Form names in shortcodes.** Give each form a name under Form → *Form name* and use `[nexform name="contact-bg"]` instead of a number. Names are created from the title (Greek and Bulgarian are transliterated), must be unique, and can be changed at any time. Existing forms get a name automatically when the plugin updates, and existing `[nexform id="…"]` shortcodes keep working.
 - **All of Europe first in the phone country list.** The default list now has 54 European countries and territories, with Greece, Cyprus and Bulgaria on top. Settings → Phone field has two new buttons: *All European countries* and *None (A–Z only)*. Sites that already saved a list keep it until you press the button and save.
 - **Phone default country follows the site language.** New phone fields start with Bulgaria on Bulgarian sites, Greece on Greek sites, and so on. Existing fields are not changed.
 

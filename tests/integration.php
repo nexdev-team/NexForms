@@ -134,6 +134,12 @@ ok( '' === do_shortcode( '[nexform name="no-such-form"]' ), 'unknown name render
 wp_set_current_user( 1 );
 list( , $l ) = req( 'GET', '/nexforms/v1/forms' );
 ok( in_array( 'contact-bg', array_column( $l, 'slug' ), true ), 'list returns names' );
+global $wpdb;
+$wpdb->update( $wpdb->posts, array( 'post_name' => '%ce%b5%cf%80' ), array( 'ID' => $b['id'] ) ); // a pre-0.1.3 Greek post_name
+clean_post_cache( $b['id'] );
+delete_option( 'nexforms_version' );
+NexForms_Forms::maybe_upgrade();
+ok( 'forma-epikoinonias' === NexForms_Forms::get( $b['id'] )['slug'], 'upgrade names existing forms: ' . NexForms_Forms::get( $b['id'] )['slug'] );
 foreach ( array( $a['id'], $b['id'], $c['id'] ) as $x ) { NexForms_Forms::delete( $x ); }
 wp_dequeue_script( 'nexforms' );
 wp_dequeue_script( 'nexforms-turnstile' ); // Keep the later asset checks independent of these renders.
