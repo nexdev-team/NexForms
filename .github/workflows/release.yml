@@ -1,0 +1,50 @@
+# Push a tag like v0.2.0 (bin/release.sh does it) and this builds nex-forms.zip and publishes a GitHub Release.
+# Sites running NexForms see the new version under Plugins → Updates; the zip is also the download for new installs.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PHP syntax
+        run: find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Check version matches tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          HEADER=$(grep -m1 -E '^\s*\*\s*Version:' nex-forms.php | awk '{print $NF}')
+          CONST=$(grep -m1 "NEXFORMS_VERSION" nex-forms.php | sed -E "s/.*'([0-9.]+)'.*/\1/")
+          echo "tag=$TAG header=$HEADER const=$CONST"
+          [ "$TAG" = "$HEADER" ] && [ "$TAG" = "$CONST" ] || { echo "::error::Version in nex-forms.php must equal the tag"; exit 1; }
+
+      - name: Build zip
+        run: |
+          git archive --format=zip --prefix=nex-forms/ -o nex-forms.zip "$GITHUB_REF_NAME"
+          unzip -l nex-forms.zip
+          sha256sum nex-forms.zip | tee nex-forms.zip.sha256
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PREV=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
+          if [ -n "$PREV" ]; then
+            NOTES=$(git log --pretty='- %s' "$PREV..$GITHUB_REF_NAME")
+          else
+            NOTES="First release."
+          fi
+          gh release create "$GITHUB_REF_NAME" nex-forms.zip nex-forms.zip.sha256 \
+            --title "NexForms ${GITHUB_REF_NAME#v}" \
+            --notes "$NOTES" \
+            --latest

@@ -14,6 +14,31 @@ Lightweight contact forms for DP's WordPress sites — a WPForms replacement wit
 
 Front-end weight: ~8 KB JS + ~12 KB CSS (unminified), loaded only on pages with a form. Turnstile's script loads only when the form uses it.
 
+## Download
+
+Latest installable zip (always the newest release):
+**https://github.com/nexdev-team/NexForms/releases/latest/download/nex-forms.zip**
+
+Use that file, not GitHub's "Source code" zip (wrong folder name, includes tests).
+
+## Updates
+
+Installed sites update from GitHub Releases like any other plugin: **Plugins → Updates**, the plugin's *View details* popup and WordPress auto-updates all work. The plugin row has a **Check for updates** link to skip the 6-hour cache.
+
+- The header `Update URI: https://github.com/nexdev-team/NexForms` stops WordPress from offering the unrelated wordpress.org plugin that uses the same `nex-forms` slug.
+- Before installing, the zip's SHA-256 is checked against the digest GitHub publishes for the release asset.
+- If the repository is **private**, every site needs a read-only token in `wp-config.php`:
+  `define( 'NEXFORMS_GITHUB_TOKEN', 'github_pat_…' );` (fine-grained, this repo only, *Contents: Read*). The public download link above also only works when the repo is public.
+
+### Publishing a release
+
+```
+bin/release.sh 0.2.0      # sets the version in nex-forms.php, commits, tags v0.2.0
+git push --follow-tags    # GitHub Action builds nex-forms.zip and publishes the release
+```
+
+The Action fails if the tag and the plugin version differ. Release notes are the commit subjects since the previous tag.
+
 ## Usage
 
 1. Upload/activate the plugin.
@@ -37,8 +62,9 @@ Theme overrides: any `--nf-*` CSS variable on `.nf` (e.g. `.nf { --nf-accent: #0
 
 ```
 php tests/integration.php /path/to/wordpress   # 83 checks: REST, sanitising, validation, mail, Turnstile, rate limit, IPs
+php tests/updater.php /path/to/throwaway-wp release.zip 0.1.1   # 12 checks: GitHub release → real plugin upgrade
 python3 bin/make-el-translation.py languages/nex-forms-el   # rebuild Greek .po/.mo
-bin/build-zip.sh                                # dist/nex-forms-<version>.zip (no tests/bin)
+bin/build-zip.sh                                # dist/nex-forms.zip, same as the release asset
 ```
 
 The integration test needs a mu-plugin that captures `wp_mail` and fakes Turnstile Siteverify (see the header of `tests/integration.php`).

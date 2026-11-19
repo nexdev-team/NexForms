@@ -9,6 +9,7 @@
  * License:           GPL-2.0-or-later
  * Text Domain:       nex-forms
  * Domain Path:       /languages
+ * Update URI:        https://github.com/nexdev-team/NexForms
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -26,6 +27,9 @@ require_once NEXFORMS_DIR . 'includes/class-nexforms-render.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-submit.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-rest.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-admin.php';
+require_once NEXFORMS_DIR . 'includes/class-nexforms-updater.php';
+
+NexForms_Updater::init();
 
 add_action( 'init', static function () {
 	load_plugin_textdomain( 'nex-forms', false, dirname( plugin_basename( NEXFORMS_FILE ) ) . '/languages' );
