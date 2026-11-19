@@ -12,6 +12,7 @@ add_filter( 'pre_http_request', function ( $pre, $args, $url ) {
 			'good'     => array( 'success' => true, 'hostname' => 'localhost', 'action' => 'nexforms' ),
 			'badhost'  => array( 'success' => true, 'hostname' => 'evil.com', 'action' => 'nexforms' ),
 			'badaction'=> array( 'success' => true, 'hostname' => 'localhost', 'action' => 'other' ),
+			'testkey'  => array( 'success' => true, 'hostname' => 'example.com', 'metadata' => array( 'result_with_testing_key' => true ) ),
 		);
 		$body = $map[ $tok ] ?? array( 'success' => false, 'error-codes' => array( 'invalid-input-response' ) );
 		return array( 'headers' => array(), 'body' => wp_json_encode( $body ), 'response' => array( 'code' => 200, 'message' => 'OK' ), 'cookies' => array() );

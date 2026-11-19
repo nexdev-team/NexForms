@@ -221,7 +221,8 @@ wp_set_current_user( 0 );
 $html = do_shortcode( '[nexform id="' . $id . '"]' );
 ok( str_contains( $html, 'class="nf-turnstile" data-sitekey="0x4AAA-site"' ), 'turnstile widget rendered' );
 ok( wp_script_is( 'nexforms-turnstile', 'enqueued' ), 'turnstile api enqueued' );
-foreach ( array( '' => 400, 'wrong' => 400, 'badhost' => 400, 'badaction' => 400, 'good' => 200 ) as $tok => $want ) {
+// This test install is 'production': Cloudflare testing-key answers must be rejected there.
+foreach ( array( '' => 400, 'wrong' => 400, 'badhost' => 400, 'badaction' => 400, 'testkey' => 400, 'good' => 200 ) as $tok => $want ) {
 	list( $s ) = req( 'POST', '/nexforms/v1/submit/' . $id, array_merge( $good, array( 'cf-turnstile-response' => $tok ) ), true );
 	ok( $want === $s, "turnstile token '" . ( $tok ?: 'empty' ) . "' → $want" );
 }

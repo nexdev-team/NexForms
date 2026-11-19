@@ -392,6 +392,12 @@ final class NexForms_Submit {
 		if ( empty( $data['success'] ) ) {
 			return false;
 		}
+		// Cloudflare's dummy testing keys answer with hostname "example.com" and no action. Accept them only
+		// outside production so local/staging sites can test the widget; production keeps the strict checks.
+		$testing = ! empty( $data['metadata']['result_with_testing_key'] ) && 'production' !== wp_get_environment_type();
+		if ( $testing ) {
+			return true;
+		}
 		if ( isset( $data['action'] ) && 'nexforms' !== $data['action'] ) {
 			return false;
 		}
