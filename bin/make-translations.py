@@ -47,6 +47,7 @@ L = {
 "This is a test message from NexForms. If you received it, form notifications will be delivered through your current mail setup.":"Δοκιμαστικό μήνυμα από το NexForms. Αν το λάβατε, οι ειδοποιήσεις των φορμών θα παραδίδονται μέσω της τρέχουσας ρύθμισης email.",
 "NexForms: form not found.":"NexForms: η φόρμα δεν βρέθηκε.",
 "NexForms: this form is a draft and is hidden from visitors.":"NexForms: η φόρμα είναι πρόχειρη και δεν εμφανίζεται στους επισκέπτες.",
+"Send another message":"Αποστολή νέου μηνύματος",
 },
 "bg_BG": {
 "This field is required.":'Това поле е задължително.',
@@ -91,6 +92,7 @@ L = {
 "This is a test message from NexForms. If you received it, form notifications will be delivered through your current mail setup.":'Това е тестово съобщение от NexForms. Ако сте го получили, известията от формулярите ще се доставят чрез текущата ви настройка за поща.',
 "NexForms: form not found.":'NexForms: формулярът не е намерен.',
 "NexForms: this form is a draft and is hidden from visitors.":'NexForms: формулярът е чернова и не се показва на посетителите.',
+"Send another message":'Изпратете ново съобщение',
 },
 }
 PLURAL = {"el": "nplurals=2; plural=(n != 1);", "bg_BG": "nplurals=2; plural=(n != 1);"}

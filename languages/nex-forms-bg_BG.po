@@ -129,3 +129,6 @@ msgstr "NexForms: формулярът не е намерен."
 
 msgid "NexForms: this form is a draft and is hidden from visitors."
 msgstr "NexForms: формулярът е чернова и не се показва на посетителите."
+
+msgid "Send another message"
+msgstr "Изпратете ново съобщение"

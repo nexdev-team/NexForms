@@ -133,6 +133,7 @@ final class NexForms_Render {
 			'network'   => __( 'Could not reach the server. Please check your connection and try again.', 'nex-forms' ),
 			'captcha'   => __( 'Please complete the security check.', 'nex-forms' ),
 			'tooFast'   => __( 'That was quick! Please wait a moment and try again.', 'nex-forms' ),
+			'again'     => __( 'Send another message', 'nex-forms' ),
 		);
 		wp_add_inline_script( 'nexforms', 'window.nexformsI18n=' . wp_json_encode( $strings ) . ';', 'before' );
 	}

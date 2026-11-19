@@ -129,3 +129,6 @@ msgstr "NexForms: η φόρμα δεν βρέθηκε."
 
 msgid "NexForms: this form is a draft and is hidden from visitors."
 msgstr "NexForms: η φόρμα είναι πρόχειρη και δεν εμφανίζεται στους επισκέπτες."
+
+msgid "Send another message"
+msgstr "Αποστολή νέου μηνύματος"

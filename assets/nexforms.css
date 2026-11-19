@@ -181,13 +181,32 @@
 @keyframes nf-spin { to { transform: rotate(360deg); } }
 
 /* Status */
-.nf-status { margin-top: var(--nf-gap); padding: .8em 1em; border-radius: var(--nf-radius); font-size: .95em; line-height: 1.5; }
+.nf-status { margin-top: var(--nf-gap); padding: .8em 1em; border-radius: min(var(--nf-radius), 14px); font-size: .95em; line-height: 1.5; }
 .nf-status.is-info { padding: 0; color: var(--nf-muted); }
 .nf-status.is-error { color: var(--nf-error); background: color-mix(in srgb, var(--nf-error) 9%, transparent); }
 .nf-status.is-success { color: inherit; background: color-mix(in srgb, var(--nf-success) 11%, transparent); border: 1px solid color-mix(in srgb, var(--nf-success) 35%, transparent); }
 .nf-done .nf-grid, .nf-done .nf-actions, .nf-done .nf-turnstile { display: none; }
 .nf-done .nf-status { margin-top: 0; padding: 1.2em 1.3em; }
 .nf-status:focus { outline: none; }
+.nf .nf-again {
+	display: block;
+	margin: .7em 0 0;
+	padding: 0;
+	font: inherit;
+	font-size: .9em;
+	font-weight: 600;
+	color: var(--nf-accent);
+	background: none;
+	border: 0;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+	text-transform: none;
+	letter-spacing: normal;
+	cursor: pointer;
+	min-height: 0;
+}
+.nf .nf-again:hover { text-decoration-thickness: 2px; }
+.nf .nf-again:focus-visible { outline: 2px solid var(--nf-accent); outline-offset: 3px; border-radius: 2px; }
 
 /* ---------- Presets ---------- */
 

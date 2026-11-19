@@ -3,6 +3,12 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.5
+
+- **"Send another message" after sending.** The success message now has a link that brings back an empty form, so visitors (and you, when testing) can send again without reloading the page.
+- **Fresh form when coming back.** Returning to the page with the browser's Back button no longer shows the old success message instead of the form.
+- The success box keeps softly rounded corners on the Rounded style.
+
 ## 0.1.4
 
 - **NexDev branding.** The NexDev logo now appears in the WordPress admin menu, at the top of the Forms and Settings pages, in the form editor, and as the plugin icon under Dashboard → Updates (the same mark NexPilot uses).

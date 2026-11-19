@@ -125,6 +125,24 @@
 		var started = Date.now();
 		var busy = false;
 
+		// Back to an empty form: after "Send another message", or when the browser restores the page from its
+		// back/forward cache with the success message still showing.
+		function reset(focus) {
+			form.reset();
+			form.classList.remove('nf-done', 'nf-busy');
+			form.querySelectorAll('.nf-field').forEach(function (w) { setError(w, ''); });
+			form.querySelectorAll('.nf-cc-select').forEach(function (sel) { sel.dispatchEvent(new Event('change')); });
+			var box = form.querySelector('.nf-status');
+			if (box) { box.hidden = true; box.textContent = ''; box.className = 'nf-status'; }
+			var btn = form.querySelector('.nf-submit');
+			if (btn) btn.disabled = false;
+			busy = false;
+			started = Date.now();
+			resetTurnstile(form);
+			if (focus) { var first = form.querySelector('.nf-input, input[type="checkbox"]'); if (first) first.focus(); }
+		}
+		window.addEventListener('pageshow', function (e) { if (e.persisted && form.classList.contains('nf-done')) reset(false); });
+
 		form.querySelectorAll('.nf-cc-select').forEach(function (sel) {
 			var face = sel.parentNode.querySelector('.nf-cc-face');
 			var sync = function () {
@@ -182,6 +200,12 @@
 						if (res.redirect) { window.location.href = res.redirect; return; }
 						form.classList.add('nf-done');
 						var box = setStatus(form, res.message || '', 'success', true);
+						var again = document.createElement('button');
+						again.type = 'button';
+						again.className = 'nf-again';
+						again.textContent = msg('again');
+						again.addEventListener('click', function () { reset(true); });
+						box.appendChild(again);
 						box.setAttribute('tabindex', '-1');
 						box.focus();
 						form.dispatchEvent(new CustomEvent('nexforms:sent', { bubbles: true }));
