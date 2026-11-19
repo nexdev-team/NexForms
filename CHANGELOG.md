@@ -8,6 +8,7 @@ Plugins → NexForms → View details. Write it in English, for site owners: wha
 - **"Send another message" after sending.** The success message now has a link that brings back an empty form, so visitors (and you, when testing) can send again without reloading the page.
 - **Fresh form when coming back.** Returning to the page with the browser's Back button no longer shows the old success message instead of the form.
 - The success box keeps softly rounded corners on the Rounded style.
+- **Clearer recipient settings.** The form's *Send to* field shows which address is used when it is empty (the site admin email), and the test-email box in Settings says that it does not change where forms send.
 
 ## 0.1.4
 

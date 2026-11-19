@@ -165,3 +165,4 @@
 .nfb-brand span { display: flex; flex-direction: column; font-size: 23px; font-weight: 600; line-height: 1.15; }
 .nfb-brand small { font-size: 12px; font-weight: 500; color: #757575; letter-spacing: .01em; }
 .nfb-topbar-logo { width: 24px; height: 24px; border-radius: 50%; flex: none; }
+.nfb-notice { margin: 12px 0 0; }

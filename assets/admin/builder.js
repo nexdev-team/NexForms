@@ -523,7 +523,7 @@
 		var tokens = ['{site_name}', '{form_title}'].concat(props.form.fields.filter(function (f) { return f.type !== 'consent'; }).map(function (f) { return '{' + f.name + '}'; }));
 
 		return h('div', { className: 'nfb-inspector-body' },
-			h(C.TextControl, { label: __('Send to', 'nex-forms'), value: s.email_to, placeholder: BOOT.adminEmail, onChange: function (v) { set({ email_to: v }); }, help: __('Separate several addresses with commas. Empty uses the site admin email.', 'nex-forms') }),
+			h(C.TextControl, { label: __('Send to', 'nex-forms'), value: s.email_to, placeholder: BOOT.adminEmail, onChange: function (v) { set({ email_to: v }); }, help: s.email_to ? __('Separate several addresses with commas.', 'nex-forms') : sprintf(__('Empty: messages go to the site admin email (%s). Separate several addresses with commas.', 'nex-forms'), BOOT.adminEmail) }),
 			h(C.TextControl, { label: __('Subject', 'nex-forms'), value: s.email_subject, onChange: function (v) { set({ email_subject: v }); } }),
 			h('div', { className: 'nfb-tokens' }, tokens.map(function (tk) {
 				return h('button', { type: 'button', key: tk, onClick: function () { set({ email_subject: (s.email_subject || '') + (s.email_subject ? ' ' : '') + tk }); } }, tk);
@@ -817,6 +817,7 @@
 			h('section', { className: 'nfb-card nfb-card-pad' },
 				h('h2', null, __('Email delivery', 'nex-forms')),
 				h('p', { className: 'nfb-hint' }, __('NexForms sends with wp_mail(), so FluentSMTP decides the mail server and From address. Use this to check delivery.', 'nex-forms')),
+				h(C.Notice, { status: 'info', isDismissible: false, className: 'nfb-notice' }, __('This only sends a test. Where each form’s messages go is set per form: Forms → edit form → Email tab → “Send to”.', 'nex-forms')),
 				h('div', { className: 'nfb-inline' },
 					h(C.TextControl, { label: __('Send a test to', 'nex-forms'), type: 'email', placeholder: BOOT.adminEmail, value: testTo, onChange: setTestTo, __nextHasNoMarginBottom: true }),
 					h(C.Button, { variant: 'secondary', isBusy: testing, disabled: testing, onClick: function () {
