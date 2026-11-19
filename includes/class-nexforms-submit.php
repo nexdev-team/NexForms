@@ -68,6 +68,47 @@ final class NexForms_Submit {
 			'ip'       => $ip,
 		);
 
+		// Fast path: answer the visitor first, then send the email in the same PHP process once the response
+		// is flushed (LiteSpeed / PHP-FPM). The visitor no longer waits for the mail provider (~1–2 s with Gmail API).
+		if ( self::can_send_after_response( $settings ) ) {
+			add_action(
+				'shutdown',
+				static function () use ( $form, $values, $context ) {
+					self::finish_response();
+					self::deliver( $form, $values, $context, true );
+				},
+				0
+			);
+			return self::ok( $form );
+		}
+
+		if ( ! self::deliver( $form, $values, $context, false ) ) {
+			return self::fail( __( 'Your message could not be sent right now. Please try again later or contact us directly.', 'nex-forms' ), 500, array( 'code' => 'mail' ) );
+		}
+		return self::ok( $form );
+	}
+
+	private static function can_send_after_response( array $settings ): bool {
+		if ( empty( $settings['background_mail'] ) ) {
+			return false;
+		}
+		return (bool) apply_filters( 'nexforms_send_after_response', function_exists( 'litespeed_finish_request' ) || function_exists( 'fastcgi_finish_request' ) );
+	}
+
+	private static function finish_response(): void {
+		while ( ob_get_level() > 0 ) {
+			ob_end_flush();
+		}
+		if ( function_exists( 'litespeed_finish_request' ) ) {
+			litespeed_finish_request();
+		} elseif ( function_exists( 'fastcgi_finish_request' ) ) {
+			fastcgi_finish_request();
+		}
+		ignore_user_abort( true );
+	}
+
+	/** Send the notification and run integrations. Returns whether the mailer accepted the email. */
+	public static function deliver( array $form, array $values, array $context, bool $background ): bool {
 		/**
 		 * Short-circuit or replace sending. Return true/false to skip the built-in email.
 		 */
@@ -76,11 +117,15 @@ final class NexForms_Submit {
 			$sent = self::send( $form, $values, $context );
 		}
 		if ( ! $sent ) {
-			return self::fail( __( 'Your message could not be sent right now. Please try again later or contact us directly.', 'nex-forms' ), 500, array( 'code' => 'mail' ) );
+			// After the response the visitor cannot be told; FluentSMTP keeps its own failure log too.
+			if ( $background ) {
+				error_log( sprintf( 'NexForms: email for form %d ("%s") was not accepted by the mailer.', (int) $form['id'], $form['title'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			}
+			do_action( 'nexforms_mail_failed', $form, $values, $context );
+			return false;
 		}
-
 		do_action( 'nexforms_submitted', $form, $values, $context );
-		return self::ok( $form );
+		return true;
 	}
 
 	/**

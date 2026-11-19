@@ -28,8 +28,12 @@ require_once NEXFORMS_DIR . 'includes/class-nexforms-submit.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-rest.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-admin.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-updater.php';
+require_once NEXFORMS_DIR . 'includes/class-nexforms-fast.php';
 
 NexForms_Updater::init();
+
+register_activation_hook( __FILE__, array( 'NexForms_Fast', 'sync' ) );
+register_deactivation_hook( __FILE__, array( 'NexForms_Fast', 'remove' ) );
 
 add_action( 'init', static function () {
 	load_plugin_textdomain( 'nex-forms', false, dirname( plugin_basename( NEXFORMS_FILE ) ) . '/languages' );

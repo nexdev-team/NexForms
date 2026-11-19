@@ -806,6 +806,15 @@
 			),
 
 			h('section', { className: 'nfb-card nfb-card-pad' },
+				h('div', { className: 'nfb-card-head' },
+					h('h2', null, __('Speed', 'nex-forms')),
+					s.fast_submit_status === 'failed' ? h('span', { className: 'nfb-pill' }, __('Could not install', 'nex-forms')) : null
+				),
+				h(C.ToggleControl, { label: __('Fast submissions', 'nex-forms'), checked: !!s.fast_submit, onChange: function (v) { set({ fast_submit: v }); }, help: s.fast_submit_status === 'failed' ? __('The helper file could not be written to wp-content/mu-plugins. Check that folder’s permissions.', 'nex-forms') : __('When a form is sent, WordPress loads only NexForms and the mail plugin (e.g. FluentSMTP) instead of every plugin. Other pages are not affected. Turn off if another plugin must see form submissions.', 'nex-forms') }),
+				h(C.ToggleControl, { label: __('Send the email after answering the visitor', 'nex-forms'), checked: !!s.background_mail, disabled: !s.background_supported, onChange: function (v) { set({ background_mail: v }); }, help: s.background_supported ? __('The visitor sees the success message right away instead of waiting for the mail provider. If sending fails, it is recorded in FluentSMTP’s log instead of being shown to the visitor.', 'nex-forms') : __('Not available on this server (needs LiteSpeed or PHP-FPM).', 'nex-forms') })
+			),
+
+			h('section', { className: 'nfb-card nfb-card-pad' },
 				h('h2', null, __('Phone field', 'nex-forms')),
 				h(C.TextareaControl, { label: __('Countries listed first', 'nex-forms'), rows: 3, value: (s.preferred_countries || []).join(', '), onChange: function (v) { set({ preferred_countries: v.toUpperCase().split(/[\s,]+/).filter(Boolean) }); }, help: __('Two-letter codes separated by commas, in the order they should appear. The field’s default country is always first; all other countries follow A–Z.', 'nex-forms') }),
 				h('div', { className: 'nfb-inline-buttons' },

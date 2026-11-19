@@ -3,6 +3,13 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.6
+
+- **Much faster sending.** On a typical WooCommerce site a submission took about 3 seconds: ~1.4 s to load WordPress with every plugin and ~1.5 s for the mail provider (e.g. Gmail API through FluentSMTP).
+  - *Fast submissions*: when a form is sent, only NexForms and the mail plugin are loaded. This uses a small helper file that NexForms installs in `wp-content/mu-plugins` and removes when it is turned off or the plugin is deactivated.
+  - *Send the email after answering the visitor*: the success message appears immediately and the email is sent right after (LiteSpeed or PHP-FPM servers). Sending failures are recorded in FluentSMTP's log.
+  - Both are on by default and can be turned off under NexForms → Settings → Speed.
+
 ## 0.1.5
 
 - **"Send another message" after sending.** The success message now has a link that brings back an empty form, so visitors (and you, when testing) can send again without reloading the page.

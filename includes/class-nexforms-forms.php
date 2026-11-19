@@ -137,6 +137,7 @@ final class NexForms_Forms {
 			$slug = '' !== $slug ? $slug : 'form-' . $p->ID;
 			wp_update_post( array( 'ID' => $p->ID, 'post_name' => wp_unique_post_slug( $slug, $p->ID, 'publish', self::POST_TYPE, 0 ) ) );
 		}
+		NexForms_Fast::sync();
 		update_option( 'nexforms_version', NEXFORMS_VERSION, true );
 	}
 

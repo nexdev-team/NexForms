@@ -17,6 +17,8 @@ final class NexForms_Settings {
 			'rate_limit'          => 5,
 			'rate_window'         => 10,
 			'min_seconds'         => 3,
+			'background_mail'     => true,
+			'fast_submit'         => true,
 			'preferred_countries' => NexForms_Countries::EUROPE,
 		);
 	}
@@ -35,6 +37,8 @@ final class NexForms_Settings {
 	public static function public_view(): array {
 		$s = self::get();
 		$s['turnstile_secret_set'] = '' !== $s['turnstile_secret'];
+		$s['fast_submit_status']   = NexForms_Fast::status();
+		$s['background_supported'] = function_exists( 'litespeed_finish_request' ) || function_exists( 'fastcgi_finish_request' );
 		unset( $s['turnstile_secret'] );
 		return $s;
 	}
@@ -60,6 +64,11 @@ final class NexForms_Settings {
 		if ( isset( $in['rate_window'] ) ) {
 			$s['rate_window'] = max( 1, min( 1440, (int) $in['rate_window'] ) );
 		}
+		foreach ( array( 'background_mail', 'fast_submit' ) as $flag ) {
+			if ( array_key_exists( $flag, $in ) ) {
+				$s[ $flag ] = (bool) $in[ $flag ];
+			}
+		}
 		if ( isset( $in['min_seconds'] ) ) {
 			$s['min_seconds'] = max( 0, min( 30, (int) $in['min_seconds'] ) );
 		}
@@ -70,6 +79,7 @@ final class NexForms_Settings {
 			);
 		}
 		update_option( self::OPTION, $s, true );
+		NexForms_Fast::sync();
 		return self::public_view();
 	}
 }

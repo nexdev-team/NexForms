@@ -263,6 +263,28 @@ foreach ( array( '' => 400, 'wrong' => 400, 'badhost' => 400, 'badaction' => 400
 	ok( $want === $s, "turnstile token '" . ( $tok ?: 'empty' ) . "' → $want" );
 }
 
+echo "Email after the response\n";
+reset_mail();
+add_filter( 'nexforms_send_after_response', '__return_true' );
+list( $s, $r ) = req( 'POST', '/nexforms/v1/submit/' . $id, array_merge( $good, array( 'cf-turnstile-response' => 'good' ) ), true );
+ok( 200 === $s && true === $r['ok'] && 0 === count( mails() ), 'visitor gets success before the email is sent' );
+ob_start();
+do_action( 'shutdown' );
+ob_end_clean();
+ok( 1 === count( mails() ), 'email sent at shutdown, after the response' );
+remove_all_actions( 'shutdown' );
+remove_filter( 'nexforms_send_after_response', '__return_true' );
+
+echo "Fast submit (mu-plugin)\n";
+$mu = WPMU_PLUGIN_DIR . '/nexforms-fast-submit.php';
+NexForms_Settings::update( array( 'fast_submit' => true ) );
+ok( is_file( $mu ) && 'on' === NexForms_Fast::status(), 'mu-plugin installed when enabled' );
+$code = file_get_contents( $mu );
+ok( str_contains( $code, "nexforms/v1/submit" ) && str_contains( $code, 'smtp' ), 'mu-plugin limits only submit requests' );
+NexForms_Settings::update( array( 'fast_submit' => false ) );
+ok( ! is_file( $mu ) && 'off' === NexForms_Fast::status(), 'mu-plugin removed when disabled' );
+NexForms_Settings::update( array( 'fast_submit' => true ) );
+
 echo "Mail failure\n";
 update_option( 'nf_test_mail_fail', 1 );
 list( $s, $r ) = req( 'POST', '/nexforms/v1/submit/' . $id, array_merge( $good, array( 'cf-turnstile-response' => 'good' ) ), true );

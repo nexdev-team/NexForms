@@ -17,3 +17,9 @@ foreach ( $nexforms_ids as $nexforms_id ) {
 	wp_delete_post( $nexforms_id, true );
 }
 delete_option( 'nexforms_settings' );
+delete_option( 'nexforms_version' );
+delete_option( 'nexforms_fast_keep' );
+$nexforms_mu = trailingslashit( WPMU_PLUGIN_DIR ) . 'nexforms-fast-submit.php';
+if ( is_file( $nexforms_mu ) ) {
+	wp_delete_file( $nexforms_mu );
+}
