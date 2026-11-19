@@ -1,0 +1,131 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: bg_BG\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "This field is required."
+msgstr "Това поле е задължително."
+
+msgid "Please enter a valid email address."
+msgstr "Моля, въведете валиден имейл адрес."
+
+msgid "Please enter a valid URL."
+msgstr "Моля, въведете валиден URL адрес."
+
+msgid "Please enter a valid phone number."
+msgstr "Моля, въведете валиден телефонен номер."
+
+msgid "Please enter a valid number."
+msgstr "Моля, въведете валидно число."
+
+msgid "Please enter a valid date."
+msgstr "Моля, въведете валидна дата."
+
+msgid "The value must be at least %s."
+msgstr "Стойността трябва да е поне %s."
+
+msgid "The value must be at most %s."
+msgstr "Стойността трябва да е най-много %s."
+
+msgid "Please enter at least %s characters."
+msgstr "Моля, въведете поне %s знака."
+
+msgid "Please enter no more than %s characters."
+msgstr "Моля, въведете не повече от %s знака."
+
+msgid "Please match the requested format."
+msgstr "Моля, спазете изисквания формат."
+
+msgid "Please select an option."
+msgstr "Моля, изберете опция."
+
+msgid "Please check the highlighted fields."
+msgstr "Моля, проверете маркираните полета."
+
+msgid "Sending…"
+msgstr "Изпращане…"
+
+msgid "Could not reach the server. Please check your connection and try again."
+msgstr "Няма връзка със сървъра. Проверете връзката си и опитайте отново."
+
+msgid "Please complete the security check."
+msgstr "Моля, завършете проверката за сигурност."
+
+msgid "That was quick! Please wait a moment and try again."
+msgstr "Твърде бързо! Изчакайте малко и опитайте отново."
+
+msgid "Leave this field empty"
+msgstr "Оставете това поле празно"
+
+msgid "— Select —"
+msgstr "— Изберете —"
+
+msgid "Country calling code"
+msgstr "Код на държавата"
+
+msgid "This form is not available."
+msgstr "Формулярът не е наличен."
+
+msgid "The submission is too large."
+msgstr "Изпратените данни са твърде големи."
+
+msgid "Too many submissions. Please try again later."
+msgstr "Твърде много изпращания. Моля, опитайте по-късно."
+
+msgid "The security check failed. Please try again."
+msgstr "Проверката за сигурност не бе успешна. Моля, опитайте отново."
+
+msgid "Your message could not be sent right now. Please try again later or contact us directly."
+msgstr "Съобщението ви не можа да бъде изпратено. Моля, опитайте по-късно или се свържете директно с нас."
+
+msgid "Invalid value."
+msgstr "Невалидна стойност."
+
+msgid "Yes"
+msgstr "Да"
+
+msgid "No"
+msgstr "Не"
+
+msgid "Contact form"
+msgstr "Форма за контакт"
+
+msgid "Name"
+msgstr "Име"
+
+msgid "Email"
+msgstr "Имейл"
+
+msgid "Phone"
+msgstr "Телефон"
+
+msgid "Message"
+msgstr "Съобщение"
+
+msgid "Send message"
+msgstr "Изпрати съобщение"
+
+msgid "Thank you! Your message has been sent."
+msgstr "Благодарим ви! Съобщението ви беше изпратено."
+
+msgid "Untitled form"
+msgstr "Формуляр без име"
+
+msgid "Option 1"
+msgstr "Опция 1"
+
+msgid "Option 2"
+msgstr "Опция 2"
+
+msgid "[%s] NexForms test email"
+msgstr "[%s] Тестов имейл от NexForms"
+
+msgid "This is a test message from NexForms. If you received it, form notifications will be delivered through your current mail setup."
+msgstr "Това е тестово съобщение от NexForms. Ако сте го получили, известията от формулярите ще се доставят чрез текущата ви настройка за поща."
+
+msgid "NexForms: form not found."
+msgstr "NexForms: формулярът не е намерен."
+
+msgid "NexForms: this form is a draft and is hidden from visitors."
+msgstr "NexForms: формулярът е чернова и не се показва на посетителите."

@@ -10,7 +10,7 @@ Lightweight contact forms for DP's WordPress sites — a WPForms replacement wit
 - **Email:** sent with `wp_mail()`, so FluentSMTP handles server and From address. HTML table, Reply-To = visitor, subject tokens like `{form_title}`, `{name}`, `{topic}`. Test-email button.
 - **Design presets:** Clean, Rounded, Glossy, Outline, Underline, Theme (uses the theme's own input styles). Accent colour (defaults to the theme's primary), corner radius, size, full-width button. Font and text colour always come from the theme; borders/backgrounds are mixed from `currentColor`, so forms fit light and dark sites.
 - **No storage of submissions.** Forms live in a private post type (`nexform`, JSON in post meta) and settings in one option. Rate-limit counters are short-lived transients.
-- **Greek translation** for everything visitors see (`languages/nex-forms-el.mo`).
+- **Greek and Bulgarian translations** for everything visitors see (`languages/nex-forms-el.mo`, `nex-forms-bg_BG.mo`), used automatically when the site language is Greek or Bulgarian. The admin is English.
 
 Front-end weight: ~8 KB JS + ~12 KB CSS (unminified), loaded only on pages with a form. Turnstile's script loads only when the form uses it.
 
@@ -63,7 +63,7 @@ Theme overrides: any `--nf-*` CSS variable on `.nf` (e.g. `.nf { --nf-accent: #0
 ```
 php tests/integration.php /path/to/wordpress   # 83 checks: REST, sanitising, validation, mail, Turnstile, rate limit, IPs
 php tests/updater.php /path/to/throwaway-wp release.zip 0.1.1   # 12 checks: GitHub release → real plugin upgrade
-python3 bin/make-el-translation.py languages/nex-forms-el   # rebuild Greek .po/.mo
+python3 bin/make-translations.py                 # rebuild Greek + Bulgarian .po/.mo
 bin/build-zip.sh                                # dist/nex-forms.zip, same as the release asset
 ```
 
