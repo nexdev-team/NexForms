@@ -1,0 +1,131 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "This field is required."
+msgstr "Το πεδίο είναι υποχρεωτικό."
+
+msgid "Please enter a valid email address."
+msgstr "Συμπληρώστε ένα έγκυρο email."
+
+msgid "Please enter a valid URL."
+msgstr "Συμπληρώστε μια έγκυρη διεύθυνση URL."
+
+msgid "Please enter a valid phone number."
+msgstr "Συμπληρώστε έναν έγκυρο αριθμό τηλεφώνου."
+
+msgid "Please enter a valid number."
+msgstr "Συμπληρώστε έναν έγκυρο αριθμό."
+
+msgid "Please enter a valid date."
+msgstr "Συμπληρώστε μια έγκυρη ημερομηνία."
+
+msgid "The value must be at least %s."
+msgstr "Η τιμή πρέπει να είναι τουλάχιστον %s."
+
+msgid "The value must be at most %s."
+msgstr "Η τιμή πρέπει να είναι το πολύ %s."
+
+msgid "Please enter at least %s characters."
+msgstr "Γράψτε τουλάχιστον %s χαρακτήρες."
+
+msgid "Please enter no more than %s characters."
+msgstr "Γράψτε έως %s χαρακτήρες."
+
+msgid "Please match the requested format."
+msgstr "Η μορφή δεν είναι σωστή."
+
+msgid "Please select an option."
+msgstr "Επιλέξτε μία επιλογή."
+
+msgid "Please check the highlighted fields."
+msgstr "Ελέγξτε τα επισημασμένα πεδία."
+
+msgid "Sending…"
+msgstr "Αποστολή…"
+
+msgid "Could not reach the server. Please check your connection and try again."
+msgstr "Δεν ήταν δυνατή η σύνδεση. Ελέγξτε τη σύνδεσή σας και δοκιμάστε ξανά."
+
+msgid "Please complete the security check."
+msgstr "Ολοκληρώστε τον έλεγχο ασφαλείας."
+
+msgid "That was quick! Please wait a moment and try again."
+msgstr "Πολύ γρήγορα! Περιμένετε λίγο και δοκιμάστε ξανά."
+
+msgid "Leave this field empty"
+msgstr "Αφήστε αυτό το πεδίο κενό"
+
+msgid "— Select —"
+msgstr "— Επιλέξτε —"
+
+msgid "Country calling code"
+msgstr "Κωδικός χώρας"
+
+msgid "This form is not available."
+msgstr "Η φόρμα δεν είναι διαθέσιμη."
+
+msgid "The submission is too large."
+msgstr "Η υποβολή είναι πολύ μεγάλη."
+
+msgid "Too many submissions. Please try again later."
+msgstr "Πάρα πολλές υποβολές. Δοκιμάστε ξανά αργότερα."
+
+msgid "The security check failed. Please try again."
+msgstr "Ο έλεγχος ασφαλείας απέτυχε. Δοκιμάστε ξανά."
+
+msgid "Your message could not be sent right now. Please try again later or contact us directly."
+msgstr "Το μήνυμά σας δεν στάλθηκε. Δοκιμάστε ξανά αργότερα ή επικοινωνήστε απευθείας μαζί μας."
+
+msgid "Invalid value."
+msgstr "Μη έγκυρη τιμή."
+
+msgid "Yes"
+msgstr "Ναι"
+
+msgid "No"
+msgstr "Όχι"
+
+msgid "Contact form"
+msgstr "Φόρμα επικοινωνίας"
+
+msgid "Name"
+msgstr "Ονοματεπώνυμο"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Τηλέφωνο"
+
+msgid "Message"
+msgstr "Μήνυμα"
+
+msgid "Send message"
+msgstr "Αποστολή"
+
+msgid "Thank you! Your message has been sent."
+msgstr "Ευχαριστούμε! Το μήνυμά σας στάλθηκε."
+
+msgid "Untitled form"
+msgstr "Φόρμα χωρίς τίτλο"
+
+msgid "Option 1"
+msgstr "Επιλογή 1"
+
+msgid "Option 2"
+msgstr "Επιλογή 2"
+
+msgid "[%s] NexForms test email"
+msgstr "[%s] Δοκιμαστικό email NexForms"
+
+msgid "This is a test message from NexForms. If you received it, form notifications will be delivered through your current mail setup."
+msgstr "Δοκιμαστικό μήνυμα από το NexForms. Αν το λάβατε, οι ειδοποιήσεις των φορμών θα παραδίδονται μέσω της τρέχουσας ρύθμισης email."
+
+msgid "NexForms: form not found."
+msgstr "NexForms: η φόρμα δεν βρέθηκε."
+
+msgid "NexForms: this form is a draft and is hidden from visitors."
+msgstr "NexForms: η φόρμα είναι πρόχειρη και δεν εμφανίζεται στους επισκέπτες."
