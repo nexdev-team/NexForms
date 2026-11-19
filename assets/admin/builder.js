@@ -156,6 +156,13 @@
 		}, h('code', null, shortcode(props.form)), h('span', { className: 'nfb-code-hint' }, s[0] ? __('Copied', 'nex-forms') : __('Copy', 'nex-forms')));
 	}
 
+	function Brand(props) {
+		return h('h1', { className: 'nfb-brand' },
+			h('img', { src: BOOT.logoUrl, alt: '', width: 32, height: 32 }),
+			h('span', null, props.title, h('small', null, __('NexForms by NexDev', 'nex-forms')))
+		);
+	}
+
 	function Dashicon(props) { return h('span', { className: 'dashicons dashicons-' + props.icon, 'aria-hidden': 'true' }); }
 
 	/* ---------- Forms list ---------- */
@@ -225,7 +232,7 @@
 
 		return h('div', { className: 'nfb-page' },
 			h('div', { className: 'nfb-pagehead' },
-				h('h1', null, __('Forms', 'nex-forms')),
+				h(Brand, { title: __('Forms', 'nex-forms') }),
 				forms && forms.length ? h(C.Button, { variant: 'primary', onClick: create, isBusy: busy, disabled: busy }, __('Add new form', 'nex-forms')) : null
 			),
 			h('div', { className: 'nfb-card' }, body),
@@ -702,6 +709,7 @@
 					if (dirty && !window.confirm(__('You have unsaved changes. Leave anyway?', 'nex-forms'))) return;
 					go({});
 				} }),
+				h('img', { className: 'nfb-topbar-logo', src: BOOT.logoUrl, alt: 'NexDev', title: 'NexForms by NexDev', width: 24, height: 24 }),
 				h('input', { className: 'nfb-title-input', value: form.title, 'aria-label': __('Form name', 'nex-forms'), onChange: function (e) { update({ title: e.target.value }); } }),
 				h(CopyShortcode, { form: savedRef.current || form }),
 				h('div', { className: 'nfb-topbar-spacer' }),
@@ -772,7 +780,7 @@
 		}
 
 		return h('div', { className: 'nfb-page nfb-settings' },
-			h('div', { className: 'nfb-pagehead' }, h('h1', null, __('Settings', 'nex-forms'))),
+			h('div', { className: 'nfb-pagehead' }, h(Brand, { title: __('Settings', 'nex-forms') })),
 
 			h('section', { className: 'nfb-card nfb-card-pad' },
 				h('div', { className: 'nfb-card-head' },

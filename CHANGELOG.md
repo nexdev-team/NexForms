@@ -3,6 +3,10 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.4
+
+- **NexDev branding.** The NexDev logo now appears in the WordPress admin menu, at the top of the Forms and Settings pages, in the form editor, and as the plugin icon under Dashboard → Updates (the same mark NexPilot uses).
+
 ## 0.1.3
 
 - **Form names in shortcodes.** Give each form a name under Form → *Form name* and use `[nexform name="contact-bg"]` instead of a number. Names are created from the title (Greek and Bulgarian are transliterated), must be unique, and can be changed at any time. Existing forms get a name automatically when the plugin updates, and existing `[nexform id="…"]` shortcodes keep working.

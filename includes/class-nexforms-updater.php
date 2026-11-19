@@ -113,7 +113,11 @@ final class NexForms_Updater {
 			'package'      => $release['package'],
 			'requires'     => $plugin_data['RequiresWP'] ?? '',
 			'requires_php' => $plugin_data['RequiresPHP'] ?? '',
-			'icons'        => array(),
+			// Same NexDev mark as NexPilot, shown on Dashboard → Updates.
+			'icons'        => array(
+				'1x' => NEXFORMS_URL . 'assets/nexdev-mark.png',
+				'2x' => NEXFORMS_URL . 'assets/nexdev-mark.png',
+			),
 		);
 	}
 

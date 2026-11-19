@@ -13,10 +13,17 @@ final class NexForms_Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( NEXFORMS_FILE ), array( __CLASS__, 'action_links' ) );
+		// The menu icon is a PNG (NexDev mark); WordPress would show it at full size without this.
+		add_action(
+			'admin_head',
+			static function () {
+				echo '<style>#adminmenu .toplevel_page_nexforms .wp-menu-image img{width:20px;height:20px;padding:7px 0 0;opacity:1;border-radius:50%}</style>';
+			}
+		);
 	}
 
 	public static function menu(): void {
-		$icon          = 'data:image/svg+xml;base64,' . base64_encode( '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path fill="#a7aaad" d="M4 2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm1 4v2h10V6H5zm0 4v2h10v-2H5zm0 4v1.5h6V14H5z"/></svg>' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		$icon          = NEXFORMS_URL . 'assets/nexdev-mark.png';
 		self::$hooks[] = add_menu_page( __( 'NexForms', 'nex-forms' ), __( 'NexForms', 'nex-forms' ), 'manage_options', 'nexforms', array( __CLASS__, 'page' ), $icon, 58 );
 		self::$hooks[] = add_submenu_page( 'nexforms', __( 'Forms', 'nex-forms' ), __( 'Forms', 'nex-forms' ), 'manage_options', 'nexforms', array( __CLASS__, 'page' ) );
 		self::$hooks[] = add_submenu_page( 'nexforms', __( 'Settings', 'nex-forms' ), __( 'Settings', 'nex-forms' ), 'manage_options', 'nexforms-settings', array( __CLASS__, 'page' ) );
@@ -71,6 +78,7 @@ final class NexForms_Admin {
 			),
 			'blankForm'      => NexForms_Schema::default_form(),
 			'version'        => NEXFORMS_VERSION,
+			'logoUrl'        => NEXFORMS_URL . 'assets/nexdev-mark.png',
 		);
 		wp_add_inline_script( 'nexforms-builder', 'window.nexformsBoot=' . wp_json_encode( $boot ) . ';', 'before' );
 	}
