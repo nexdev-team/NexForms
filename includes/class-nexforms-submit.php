@@ -66,6 +66,7 @@ final class NexForms_Submit {
 		$context = array(
 			'page_url' => esc_url_raw( (string) ( $params['nf_page'] ?? '' ) ),
 			'ip'       => $ip,
+			'ticket'   => ! empty( $form['settings']['ticket'] ) ? NexForms_Tickets::next( NexForms_Tickets::prefix_for( $form, $params ) ) : '',
 		);
 
 		// Fast path: answer the visitor first, then send the email in the same PHP process once the response
@@ -79,13 +80,13 @@ final class NexForms_Submit {
 				},
 				0
 			);
-			return self::ok( $form );
+			return self::ok( $form, $values, $context );
 		}
 
 		if ( ! self::deliver( $form, $values, $context, false ) ) {
 			return self::fail( __( 'Your message could not be sent right now. Please try again later or contact us directly.', 'nex-forms' ), 500, array( 'code' => 'mail' ) );
 		}
-		return self::ok( $form );
+		return self::ok( $form, $values, $context );
 	}
 
 	private static function can_send_after_response( array $settings ): bool {
@@ -124,8 +125,80 @@ final class NexForms_Submit {
 			do_action( 'nexforms_mail_failed', $form, $values, $context );
 			return false;
 		}
+		self::autoreply( $form, $values, $context );
 		do_action( 'nexforms_submitted', $form, $values, $context );
 		return true;
+	}
+
+	/**
+	 * "We received your message" email to the visitor. Contains only the site's own text and the ticket,
+	 * plus the visitor's answers only if the form allows it, so the form cannot be used to send arbitrary
+	 * content to third parties. {name} is shortened for the same reason.
+	 */
+	public static function autoreply( array $form, array $values, array $context ): bool {
+		$s = $form['settings'];
+		if ( empty( $s['autoreply'] ) ) {
+			return false;
+		}
+		$to = '';
+		$field = (string) $s['reply_to_field'];
+		if ( '' !== $field && isset( $values[ $field ] ) && 'email' === $values[ $field ]['type'] ) {
+			$to = $values[ $field ]['value'];
+		} else {
+			foreach ( $values as $v ) {
+				if ( 'email' === $v['type'] && '' !== $v['value'] ) {
+					$to = $v['value'];
+					break;
+				}
+			}
+		}
+		if ( '' === $to || ! is_email( $to ) ) {
+			return false;
+		}
+
+		$short = array();
+		foreach ( $values as $k => $v ) {
+			$short[ $k ] = $v;
+			$short[ $k ]['value'] = mb_substr( preg_replace( '/[\r\n]+/', ' ', (string) $v['value'] ), 0, 60 );
+		}
+		$message = $s['autoreply_message'];
+		if ( '' === (string) ( $context['ticket'] ?? '' ) ) {
+			$message = preg_replace( '/^.*\{ticket\}.*(\R|$)/m', '', $message ); // No ticket: drop the "reference number" line.
+		}
+		$subject = wp_strip_all_tags( self::tokens( $s['autoreply_subject'], $form, $short, $context ) );
+		$text    = self::tokens( $message, $form, $short, $context );
+		$body    = '<!doctype html><html><body style="margin:0;padding:24px;background:#ffffff;font:15px/1.6 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1d2327">'
+			. '<div style="max-width:600px">' . nl2br( esc_html( $text ) ) . '</div>';
+		if ( ! empty( $s['autoreply_copy'] ) ) {
+			$rows = '';
+			foreach ( $values as $v ) {
+				if ( '' !== $v['value'] && 'hidden' !== $v['type'] ) {
+					$rows .= '<tr><th style="text-align:left;vertical-align:top;padding:8px 12px;background:#f6f7f9;border-bottom:1px solid #e6e8eb;width:34%;font-weight:600">' . esc_html( $v['label'] ) . '</th><td style="padding:8px 12px;border-bottom:1px solid #e6e8eb">' . nl2br( esc_html( $v['value'] ) ) . '</td></tr>';
+				}
+			}
+			$body .= '<table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:20px;width:100%;max-width:600px;border-collapse:collapse;border:1px solid #e6e8eb;font-size:14px">' . $rows . '</table>';
+		}
+		$body .= '</body></html>';
+
+		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
+		// Replies from the visitor go to the team that received the form.
+		$team = '' !== $s['email_to'] ? trim( explode( ',', $s['email_to'] )[0] ) : get_option( 'admin_email' );
+		if ( is_email( $team ) ) {
+			$headers[] = 'Reply-To: ' . $team;
+		}
+		$mail = apply_filters(
+			'nexforms_autoreply',
+			array(
+				'to'      => $to,
+				'subject' => $subject,
+				'message' => $body,
+				'headers' => $headers,
+			),
+			$form,
+			$values,
+			$context
+		);
+		return (bool) wp_mail( $mail['to'], $mail['subject'], $mail['message'], $mail['headers'] );
 	}
 
 	/**
@@ -318,8 +391,12 @@ final class NexForms_Submit {
 		$to = '' !== $form['settings']['email_to'] ? $form['settings']['email_to'] : get_option( 'admin_email' );
 		$to = array_map( 'trim', explode( ',', $to ) );
 
-		$subject = self::tokens( $form['settings']['email_subject'], $form, $values );
+		$subject = self::tokens( $form['settings']['email_subject'], $form, $values, $context );
 		$subject = wp_strip_all_tags( html_entity_decode( $subject, ENT_QUOTES, 'UTF-8' ) );
+		$ticket  = (string) ( $context['ticket'] ?? '' );
+		if ( '' !== $ticket && ! str_contains( $subject, $ticket ) ) {
+			$subject = '[' . $ticket . '] ' . $subject; // Easy to find and thread in the inbox.
+		}
 
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 		$reply   = self::reply_to( $form, $values );
@@ -350,7 +427,7 @@ final class NexForms_Submit {
 		}
 
 		$body = '<!doctype html><html><body style="margin:0;padding:24px;background:#ffffff;font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1d2327">'
-			. '<h2 style="margin:0 0 4px;font-size:18px">' . esc_html( $form['title'] ) . '</h2>'
+			. '<h2 style="margin:0 0 4px;font-size:18px">' . esc_html( $form['title'] ) . ( '' !== $ticket ? ' <span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:4px;background:#eef2ff;color:#3730a3;font:600 13px/1.5 ui-monospace,Menlo,monospace">' . esc_html( $ticket ) . '</span>' : '' ) . '</h2>'
 			. '<p style="margin:0 0 16px;color:#646970;font-size:12px">' . $meta . '</p>'
 			. '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;max-width:680px;border-collapse:collapse;border:1px solid #e6e8eb">' . $rows . '</table>'
 			. '</body></html>';
@@ -400,20 +477,37 @@ final class NexForms_Submit {
 		return '' !== $name ? sprintf( '%s <%s>', $name, $email ) : $email;
 	}
 
-	public static function tokens( string $text, array $form, array $values ): string {
-		return preg_replace_callback(
+	/**
+	 * Replace {site_name}, {form_title}, {ticket} and {<field key>} in a text.
+	 * $html = true escapes the inserted values (for HTML such as the success message).
+	 */
+	public static function tokens( string $text, array $form, array $values, array $context = array(), bool $html = false ): string {
+		$out = preg_replace_callback(
 			'/\{([a-z0-9_]+)\}/',
-			static function ( $m ) use ( $form, $values ) {
+			static function ( $m ) use ( $form, $values, $context, $html ) {
 				switch ( $m[1] ) {
 					case 'site_name':
-						return get_bloginfo( 'name' );
+						$v = get_bloginfo( 'name' );
+						break;
 					case 'form_title':
-						return $form['title'];
+						$v = $form['title'];
+						break;
+					case 'ticket':
+						$v = (string) ( $context['ticket'] ?? '' );
+						break;
+					default:
+						if ( ! isset( $values[ $m[1] ] ) ) {
+							return $m[0];
+						}
+						$v = (string) $values[ $m[1] ]['value'];
 				}
-				return isset( $values[ $m[1] ] ) ? $values[ $m[1] ]['value'] : $m[0];
+				return $html ? esc_html( $v ) : $v;
 			},
 			$text
 		);
+		// Tidy a missing ticket: "message  ." / "[]" / trailing spaces.
+		$out = preg_replace( array( '/\[\s*\]|\(\s*\)/', '/[ \t]{2,}/', '/[ \t]+$/m' ), array( '', ' ', '' ), $out );
+		return trim( $out );
 	}
 
 	private static function turnstile_ok( string $token, string $ip, array $settings ): bool {
@@ -515,12 +609,13 @@ final class NexForms_Submit {
 		return ( $ip_bin[ $bytes ] & $mask ) === ( $net_bin[ $bytes ] & $mask );
 	}
 
-	private static function ok( array $form ): WP_REST_Response {
+	private static function ok( array $form, array $values = array(), array $context = array() ): WP_REST_Response {
 		$res = new WP_REST_Response(
 			array(
 				'ok'       => true,
-				'message'  => $form['settings']['success_message'],
+				'message'  => wp_kses_post( self::tokens( $form['settings']['success_message'], $form, $values, $context, true ) ),
 				'redirect' => $form['settings']['redirect_url'],
+				'ticket'   => (string) ( $context['ticket'] ?? '' ),
 			),
 			200
 		);

@@ -48,6 +48,8 @@ L = {
 "NexForms: form not found.":"NexForms: η φόρμα δεν βρέθηκε.",
 "NexForms: this form is a draft and is hidden from visitors.":"NexForms: η φόρμα είναι πρόχειρη και δεν εμφανίζεται στους επισκέπτες.",
 "Send another message":"Αποστολή νέου μηνύματος",
+"We received your message {ticket}":"Λάβαμε το μήνυμά σας {ticket}",
+"Hello {name},\n\nThank you for contacting us. We have received your request and will get back to you as soon as possible.\n\nYour reference number: {ticket}\n\n{site_name}":"Γεια σας {name},\n\nΣας ευχαριστούμε που επικοινωνήσατε μαζί μας. Λάβαμε το αίτημά σας και θα σας απαντήσουμε το συντομότερο δυνατό.\n\nΑριθμός αναφοράς: {ticket}\n\n{site_name}",
 },
 "bg_BG": {
 "This field is required.":'Това поле е задължително.',
@@ -93,6 +95,8 @@ L = {
 "NexForms: form not found.":'NexForms: формулярът не е намерен.',
 "NexForms: this form is a draft and is hidden from visitors.":'NexForms: формулярът е чернова и не се показва на посетителите.',
 "Send another message":'Изпратете ново съобщение',
+"We received your message {ticket}":"Получихме съобщението ви {ticket}",
+"Hello {name},\n\nThank you for contacting us. We have received your request and will get back to you as soon as possible.\n\nYour reference number: {ticket}\n\n{site_name}":"Здравейте, {name},\n\nБлагодарим ви, че се свързахте с нас. Получихме запитването ви и ще ви отговорим възможно най-скоро.\n\nВашият номер за справка: {ticket}\n\n{site_name}",
 },
 }
 PLURAL = {"el": "nplurals=2; plural=(n != 1);", "bg_BG": "nplurals=2; plural=(n != 1);"}

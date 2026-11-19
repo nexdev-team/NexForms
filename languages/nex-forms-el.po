@@ -132,3 +132,9 @@ msgstr "NexForms: η φόρμα είναι πρόχειρη και δεν εμφ
 
 msgid "Send another message"
 msgstr "Αποστολή νέου μηνύματος"
+
+msgid "We received your message {ticket}"
+msgstr "Λάβαμε το μήνυμά σας {ticket}"
+
+msgid "Hello {name},\n\nThank you for contacting us. We have received your request and will get back to you as soon as possible.\n\nYour reference number: {ticket}\n\n{site_name}"
+msgstr "Γεια σας {name},\n\nΣας ευχαριστούμε που επικοινωνήσατε μαζί μας. Λάβαμε το αίτημά σας και θα σας απαντήσουμε το συντομότερο δυνατό.\n\nΑριθμός αναφοράς: {ticket}\n\n{site_name}"

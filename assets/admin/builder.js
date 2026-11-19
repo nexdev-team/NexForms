@@ -505,7 +505,7 @@
 				help: sprintf(__('Shortcode: [nexform name="%s"]. Latin letters, numbers and hyphens; must be unique. Old [nexform id="…"] shortcodes keep working.', 'nex-forms'), form.slug || slug(form.title, '-') || '…')
 			}),
 			h(C.TextControl, { label: __('Button text', 'nex-forms'), value: s.submit_label, onChange: function (v) { set({ submit_label: v }); } }),
-			h(C.TextareaControl, { label: __('Success message', 'nex-forms'), value: s.success_message, rows: 3, onChange: function (v) { set({ success_message: v }); }, help: __('Shown in place of the form after sending. Basic HTML allowed.', 'nex-forms') }),
+			h(C.TextareaControl, { label: __('Success message', 'nex-forms'), value: s.success_message, rows: 3, onChange: function (v) { set({ success_message: v }); }, help: __('Shown in place of the form after sending. Basic HTML allowed; {ticket} and field keys like {name} work here too.', 'nex-forms') }),
 			h(C.TextControl, { label: __('Redirect after sending (optional)', 'nex-forms'), type: 'url', placeholder: 'https://', value: s.redirect_url, onChange: function (v) { set({ redirect_url: v }); }, help: __('Leave empty to show the success message.', 'nex-forms') }),
 			h('div', { className: 'nfb-section' },
 				h('h3', null, __('Spam protection', 'nex-forms')),
@@ -519,8 +519,10 @@
 		var s = props.form.settings;
 		var set = function (patch) { props.onChange(Object.assign({}, s, patch)); };
 		var emailFields = props.form.fields.filter(function (f) { return f.type === 'email'; });
+		var choiceFields = props.form.fields.filter(function (f) { return f.type === 'select' || f.type === 'radio'; });
+		var ticketField = s.ticket_field ? choiceFields.find(function (f) { return f.name === s.ticket_field; }) : null;
 		var ts = useState(false), testing = ts[0], setTesting = ts[1];
-		var tokens = ['{site_name}', '{form_title}'].concat(props.form.fields.filter(function (f) { return f.type !== 'consent'; }).map(function (f) { return '{' + f.name + '}'; }));
+		var tokens = ['{site_name}', '{form_title}'].concat(s.ticket ? ['{ticket}'] : []).concat(props.form.fields.filter(function (f) { return f.type !== 'consent'; }).map(function (f) { return '{' + f.name + '}'; }));
 
 		return h('div', { className: 'nfb-inspector-body' },
 			h(C.TextControl, { label: __('Send to', 'nex-forms'), value: s.email_to, placeholder: BOOT.adminEmail, onChange: function (v) { set({ email_to: v }); }, help: s.email_to ? __('Separate several addresses with commas.', 'nex-forms') : sprintf(__('Empty: messages go to the site admin email (%s). Separate several addresses with commas.', 'nex-forms'), BOOT.adminEmail) }),
@@ -529,6 +531,37 @@
 				return h('button', { type: 'button', key: tk, onClick: function () { set({ email_subject: (s.email_subject || '') + (s.email_subject ? ' ' : '') + tk }); } }, tk);
 			})),
 			h(C.SelectControl, { label: __('Reply-To', 'nex-forms'), value: s.reply_to_field, options: [{ value: '', label: emailFields.length ? __('First email field (automatic)', 'nex-forms') : __('No email field in this form', 'nex-forms') }].concat(emailFields.map(function (f) { return { value: f.name, label: f.label }; })), onChange: function (v) { set({ reply_to_field: v }); }, help: __('Hitting “Reply” in your inbox answers the visitor directly.', 'nex-forms') }),
+			h('div', { className: 'nfb-section' },
+				h('h3', null, __('Ticket numbers', 'nex-forms')),
+				h(C.ToggleControl, { label: __('Give every message a ticket number', 'nex-forms'), checked: !!s.ticket, onChange: function (v) { set({ ticket: v }); }, help: __('e.g. SUP-00042. Added to the email subject, the auto-reply and the success message ({ticket}). Each prefix has its own counter; messages are still not stored.', 'nex-forms') }),
+				s.ticket ? h(Fragment, null,
+					h(C.TextControl, { label: __('Prefix', 'nex-forms'), value: s.ticket_prefix, maxLength: 12, onChange: function (v) { set({ ticket_prefix: v.toUpperCase().replace(/[^A-Z0-9-]/g, '') }); }, help: sprintf(__('Next ticket looks like %s-00001.', 'nex-forms'), s.ticket_prefix || 'SUP') }),
+					choiceFields.length ? h(C.SelectControl, { label: __('Different prefix per section', 'nex-forms'), value: s.ticket_field || '', options: [{ value: '', label: __('No, one prefix for this form', 'nex-forms') }].concat(choiceFields.map(function (f) { return { value: f.name, label: sprintf(__('By “%s”', 'nex-forms'), f.label.replace(/<[^>]*>/g, '')) }; })), onChange: function (v) { set({ ticket_field: v }); } }) : null,
+					ticketField ? h('div', { className: 'nfb-ticket-map' },
+						(ticketField.options || []).map(function (o) {
+							return h('div', { className: 'nfb-ticket-row', key: o.value },
+								h('span', null, o.label),
+								h('input', { type: 'text', value: (s.ticket_map || {})[o.value] || '', placeholder: s.ticket_prefix || 'SUP', maxLength: 12, 'aria-label': sprintf(__('Prefix for %s', 'nex-forms'), o.label), onChange: function (e) {
+									var map = Object.assign({}, s.ticket_map || {});
+									var v = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+									if (v) { map[o.value] = v; } else { delete map[o.value]; }
+									set({ ticket_map: map });
+								} })
+							);
+						}),
+						h('p', { className: 'nfb-hint' }, __('Empty uses the form prefix. Example: Returns → RET, Orders → ORD.', 'nex-forms'))
+					) : null
+				) : null
+			),
+			h('div', { className: 'nfb-section' },
+				h('h3', null, __('Auto-reply to the visitor', 'nex-forms')),
+				h(C.ToggleControl, { label: __('Send a confirmation email to the visitor', 'nex-forms'), checked: !!s.autoreply, onChange: function (v) { set({ autoreply: v }); }, help: emailFields.length ? __('Sent to the email the visitor typed. Their reply goes to the “Send to” address.', 'nex-forms') : __('Add an Email field to the form first.', 'nex-forms') }),
+				s.autoreply ? h(Fragment, null,
+					h(C.TextControl, { label: __('Subject', 'nex-forms'), value: s.autoreply_subject, onChange: function (v) { set({ autoreply_subject: v }); } }),
+					h(C.TextareaControl, { label: __('Message', 'nex-forms'), rows: 8, value: s.autoreply_message, onChange: function (v) { set({ autoreply_message: v }); }, help: __('Plain text. Use {name}, {ticket}, {site_name} or any field key. Lines with {ticket} are left out when the form has no ticket numbers.', 'nex-forms') }),
+					h(C.ToggleControl, { label: __('Include a copy of what they sent', 'nex-forms'), checked: !!s.autoreply_copy, onChange: function (v) { set({ autoreply_copy: v }); }, help: __('Off is safer: otherwise someone could type another person’s email and make your site send them any text.', 'nex-forms') })
+				) : null
+			),
 			h('div', { className: 'nfb-section' },
 				h('h3', null, __('Delivery', 'nex-forms')),
 				h('p', { className: 'nfb-hint' }, __('Emails go through WordPress’ mailer, so FluentSMTP (or any SMTP plugin) handles sending and the From address. Submissions are not stored on the site.', 'nex-forms')),

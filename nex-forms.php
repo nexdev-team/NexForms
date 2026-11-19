@@ -25,6 +25,7 @@ require_once NEXFORMS_DIR . 'includes/class-nexforms-forms.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-settings.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-render.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-submit.php';
+require_once NEXFORMS_DIR . 'includes/class-nexforms-tickets.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-rest.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-admin.php';
 require_once NEXFORMS_DIR . 'includes/class-nexforms-updater.php';

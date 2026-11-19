@@ -3,6 +3,14 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.7
+
+- **Ticket numbers.** Turn on *Ticket numbers* in a form's Email tab and every message gets a code such as `SUP-00042`. It is added to the email subject (easy to search and thread in the inbox), shown at the top of the email, and can be used in the success message and the auto-reply as `{ticket}`.
+  - **Per section:** choose a dropdown or radio field (e.g. "Section") and give each option its own prefix, e.g. Orders → `ORD`, Returns → `RET`. Each prefix has its own counter. Options without a prefix use the form's prefix.
+  - Only the counters are stored. Submissions are still not saved on the site.
+- **Auto-reply to the visitor.** An optional "we received your message" email with your own subject and text (`{name}`, `{ticket}`, `{site_name}` and field keys work). When the visitor replies, the reply goes to the form's *Send to* address. Default texts are in English, Greek and Bulgarian, following the site language.
+  - By default the auto-reply does **not** include a copy of what the visitor sent, so the form cannot be used to send arbitrary text to someone else's address. You can turn the copy on per form.
+
 ## 0.1.6
 
 - **Much faster sending.** On a typical WooCommerce site a submission took about 3 seconds: ~1.4 s to load WordPress with every plugin and ~1.5 s for the mail provider (e.g. Gmail API through FluentSMTP).

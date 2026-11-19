@@ -132,3 +132,9 @@ msgstr "NexForms: формулярът е чернова и не се показ
 
 msgid "Send another message"
 msgstr "Изпратете ново съобщение"
+
+msgid "We received your message {ticket}"
+msgstr "Получихме съобщението ви {ticket}"
+
+msgid "Hello {name},\n\nThank you for contacting us. We have received your request and will get back to you as soon as possible.\n\nYour reference number: {ticket}\n\n{site_name}"
+msgstr "Здравейте, {name},\n\nБлагодарим ви, че се свързахте с нас. Получихме запитването ви и ще ви отговорим възможно най-скоро.\n\nВашият номер за справка: {ticket}\n\n{site_name}"

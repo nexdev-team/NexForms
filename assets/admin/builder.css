@@ -166,3 +166,8 @@
 .nfb-brand small { font-size: 12px; font-weight: 500; color: #757575; letter-spacing: .01em; }
 .nfb-topbar-logo { width: 24px; height: 24px; border-radius: 50%; flex: none; }
 .nfb-notice { margin: 12px 0 0; }
+
+/* Ticket prefixes per section */
+.nfb-ticket-map { border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; }
+.nfb-ticket-row { display: grid; grid-template-columns: 1fr 96px; gap: 8px; align-items: center; padding: 4px 0; font-size: 13px; }
+.nfb-ticket-row input { font-family: ui-monospace, Menlo, monospace; text-transform: uppercase; min-height: 30px; padding: 2px 8px !important; }

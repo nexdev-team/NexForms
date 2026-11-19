@@ -51,7 +51,27 @@ final class NexForms_Schema {
 			'email_to'        => '',
 			'email_subject'   => '[{site_name}] {form_title}',
 			'reply_to_field'  => '',
+			// Ticket numbers.
+			'ticket'          => false,
+			'ticket_prefix'   => 'SUP',
+			'ticket_field'    => '',
+			'ticket_map'      => array(),
+			// Auto-reply to the visitor.
+			'autoreply'         => false,
+			'autoreply_subject' => self::default_autoreply_subject(),
+			'autoreply_message' => self::default_autoreply_message(),
+			'autoreply_copy'    => false,
 		);
+	}
+
+	public static function default_autoreply_subject(): string {
+		/* translators: placeholders are form tokens, keep them as they are */
+		return __( 'We received your message {ticket}', 'nex-forms' );
+	}
+
+	public static function default_autoreply_message(): string {
+		/* translators: placeholders are form tokens, keep them as they are */
+		return __( "Hello {name},\n\nThank you for contacting us. We have received your request and will get back to you as soon as possible.\n\nYour reference number: {ticket}\n\n{site_name}", 'nex-forms' );
 	}
 
 	public static function default_design(): array {
@@ -149,7 +169,21 @@ final class NexForms_Schema {
 			'email_to'        => self::sanitize_emails( (string) ( $s['email_to'] ?? '' ) ),
 			'email_subject'   => sanitize_text_field( (string) ( $s['email_subject'] ?? $d['email_subject'] ) ) ?: $d['email_subject'],
 			'reply_to_field'  => sanitize_key( (string) ( $s['reply_to_field'] ?? '' ) ),
+			'ticket'          => ! empty( $s['ticket'] ),
+			'ticket_prefix'   => self::ticket_prefix( (string) ( $s['ticket_prefix'] ?? '' ) ) ?: 'SUP',
+			'ticket_field'    => sanitize_key( (string) ( $s['ticket_field'] ?? '' ) ),
+			'ticket_map'      => array(),
+			'autoreply'         => ! empty( $s['autoreply'] ),
+			'autoreply_subject' => sanitize_text_field( (string) ( $s['autoreply_subject'] ?? '' ) ) ?: self::default_autoreply_subject(),
+			'autoreply_message' => sanitize_textarea_field( (string) ( $s['autoreply_message'] ?? '' ) ) ?: self::default_autoreply_message(),
+			'autoreply_copy'    => ! empty( $s['autoreply_copy'] ),
 		);
+		foreach ( (array) ( $s['ticket_map'] ?? array() ) as $value => $prefix ) {
+			$prefix = self::ticket_prefix( (string) $prefix );
+			if ( '' !== $prefix ) {
+				$out['settings']['ticket_map'][ sanitize_text_field( (string) $value ) ] = $prefix;
+			}
+		}
 
 		$g             = (array) ( $in['design'] ?? array() );
 		$radius        = $g['radius'] ?? null;
@@ -244,6 +278,11 @@ final class NexForms_Schema {
 		'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'ts', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sht', 'ъ' => 'a', 'ы' => 'y', 'ь' => 'y',
 		'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
 	);
+
+	/** Ticket prefix: A–Z, 0–9 and hyphen, up to 12 characters, upper case. */
+	public static function ticket_prefix( string $p ): string {
+		return substr( trim( preg_replace( '/[^A-Z0-9-]+/', '', strtoupper( $p ) ), '-' ), 0, 12 );
+	}
 
 	/** Latin-only slug (a-z, 0-9, hyphen) from any title, transliterating Greek and Cyrillic. */
 	public static function slugify( string $text ): string {
