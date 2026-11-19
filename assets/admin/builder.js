@@ -783,7 +783,11 @@
 
 			h('section', { className: 'nfb-card nfb-card-pad' },
 				h('h2', null, __('Phone field', 'nex-forms')),
-				h(C.TextControl, { label: __('Countries listed first', 'nex-forms'), value: (s.preferred_countries || []).join(', '), onChange: function (v) { set({ preferred_countries: v.toUpperCase().split(/[\s,]+/).filter(Boolean) }); }, help: __('Two-letter codes separated by commas, e.g. GR, CY, BG. The field’s default country is always first.', 'nex-forms') })
+				h(C.TextareaControl, { label: __('Countries listed first', 'nex-forms'), rows: 3, value: (s.preferred_countries || []).join(', '), onChange: function (v) { set({ preferred_countries: v.toUpperCase().split(/[\s,]+/).filter(Boolean) }); }, help: __('Two-letter codes separated by commas, in the order they should appear. The field’s default country is always first; all other countries follow A–Z.', 'nex-forms') }),
+				h('div', { className: 'nfb-inline-buttons' },
+					h(C.Button, { variant: 'secondary', size: 'compact', onClick: function () { set({ preferred_countries: (BOOT.europe || []).slice() }); } }, sprintf(__('All European countries (%d)', 'nex-forms'), (BOOT.europe || []).length)),
+					h(C.Button, { variant: 'tertiary', size: 'compact', onClick: function () { set({ preferred_countries: [] }); } }, __('None (A–Z only)', 'nex-forms'))
+				)
 			),
 
 			h('section', { className: 'nfb-card nfb-card-pad' },

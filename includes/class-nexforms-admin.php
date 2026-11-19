@@ -64,6 +64,7 @@ final class NexForms_Admin {
 			'turnstileReady' => NexForms_Settings::turnstile_ready(),
 			'countries'      => $countries,
 			'preferred'      => $settings['preferred_countries'],
+			'europe'         => NexForms_Countries::EUROPE,
 			'newField'       => array_combine(
 				NexForms_Schema::FIELD_TYPES,
 				array_map( static fn( $t ) => NexForms_Schema::field( $t ), NexForms_Schema::FIELD_TYPES )

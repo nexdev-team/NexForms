@@ -117,6 +117,9 @@ list( $s ) = req( 'GET', '/nexforms/v1/forms/999999' );
 ok( 404 === $s, '404 for missing form' );
 
 echo "Settings\n";
+ok( NexForms_Countries::EUROPE === NexForms_Settings::defaults()['preferred_countries'], 'default phone list = all of Europe' );
+$ordered = array_column( NexForms_Countries::ordered( NexForms_Countries::EUROPE ), 'iso' );
+ok( array_slice( $ordered, 0, 54 ) === NexForms_Countries::EUROPE && 'GR' === $ordered[0] && ! in_array( 'US', array_slice( $ordered, 0, 54 ), true ), 'European countries listed first, Greece on top' );
 list( $s, $st ) = req( 'POST', '/nexforms/v1/settings', array( 'turnstile_site_key' => '0x4AAA-site', 'turnstile_secret' => '0x4AAA-secret', 'rate_limit' => 100, 'min_seconds' => 3, 'preferred_countries' => 'gr, cy, xx' ) );
 ok( 200 === $s && ! isset( $st['turnstile_secret'] ) && true === $st['turnstile_secret_set'], 'secret saved but never returned' );
 ok( array( 'GR', 'CY' ) === $st['preferred_countries'], 'unknown country codes dropped' );

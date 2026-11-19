@@ -17,7 +17,7 @@ final class NexForms_Settings {
 			'rate_limit'          => 5,
 			'rate_window'         => 10,
 			'min_seconds'         => 3,
-			'preferred_countries' => array( 'GR', 'CY', 'BG', 'RO', 'DE', 'GB', 'IT', 'FR', 'ES', 'NL' ),
+			'preferred_countries' => NexForms_Countries::EUROPE,
 		);
 	}
 
