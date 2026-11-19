@@ -30,7 +30,7 @@ add_filter( 'pre_http_request', function ( $pre, $args, $url ) use ( $nf_zip, $n
 	if ( str_contains( $url, 'api.github.com/repos/nexdev-team/NexForms/releases/latest' ) ) {
 		$body = array(
 			'tag_name' => 'v' . $nf_new, 'draft' => false, 'prerelease' => false, 'html_url' => 'https://github.com/nexdev-team/NexForms/releases/tag/v' . $nf_new,
-			'body' => "- Better things\n- <script>x</script>", 'published_at' => '2026-11-19T10:00:00Z',
+			'body' => "- **Better** things with `code`\n- <script>x</script>", 'published_at' => '2026-11-19T10:00:00Z',
 			'assets' => array(
 				array( 'name' => 'nex-forms.zip.sha256', 'url' => 'https://api.github.com/repos/nexdev-team/NexForms/releases/assets/2', 'browser_download_url' => 'https://github.com/x/sha' ),
 				array( 'name' => 'nex-forms.zip', 'url' => 'https://api.github.com/repos/nexdev-team/NexForms/releases/assets/1', 'browser_download_url' => 'https://github.com/nexdev-team/NexForms/releases/download/v' . $nf_new . '/nex-forms.zip', 'digest' => 'sha256:' . $GLOBALS['nf_digest'] ),
@@ -57,6 +57,7 @@ ok( isset( $GLOBALS['nf_wporg_body'] ) && ! str_contains( $GLOBALS['nf_wporg_bod
 
 $info = plugins_api( 'plugin_information', array( 'slug' => 'nex-forms' ) );
 ok( ! is_wp_error( $info ) && $nf_new === $info->version && ! str_contains( $info->sections['changelog'], '<script>' ), 'details popup with escaped changelog' );
+ok( str_contains( $info->sections['changelog'], '<li><strong>Better</strong> things with <code>code</code></li>' ), 'changelog Markdown rendered as a list' );
 
 echo "Checksum\n";
 $GLOBALS['nf_digest_real'] = $GLOBALS['nf_digest'];

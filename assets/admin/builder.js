@@ -69,15 +69,18 @@
 		{ value: 'country-name', label: __('Country', 'nex-forms') }
 	];
 
+	var CYRILLIC = { 'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch', 'ш': 'sh', 'щ': 'sht', 'ъ': 'a', 'ы': 'y', 'ь': 'y', 'э': 'e', 'ю': 'yu', 'я': 'ya' };
 	var GREEK = { 'α': 'a', 'ά': 'a', 'β': 'v', 'γ': 'g', 'δ': 'd', 'ε': 'e', 'έ': 'e', 'ζ': 'z', 'η': 'i', 'ή': 'i', 'θ': 'th', 'ι': 'i', 'ί': 'i', 'ϊ': 'i', 'ΐ': 'i', 'κ': 'k', 'λ': 'l', 'μ': 'm', 'ν': 'n', 'ξ': 'x', 'ο': 'o', 'ό': 'o', 'π': 'p', 'ρ': 'r', 'σ': 's', 'ς': 's', 'τ': 't', 'υ': 'y', 'ύ': 'y', 'ϋ': 'y', 'ΰ': 'y', 'φ': 'f', 'χ': 'ch', 'ψ': 'ps', 'ω': 'o', 'ώ': 'o' };
 
 	/* ---------- Helpers ---------- */
 
-	function slug(s) {
+	function slug(s, sep) {
+		sep = sep || '_';
 		s = String(s || '').replace(/<[^>]*>/g, '').toLowerCase();
-		s = s.replace(/[Ͱ-Ͽἀ-῿]/g, function (c) { return GREEK[c] || ''; });
-		s = s.normalize ? s.normalize('NFD').replace(/[̀-ͯ]/g, '') : s;
-		return s.replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40);
+		s = s.replace(/[\u0370-\u03ff\u1f00-\u1fff]/g, function (c) { return GREEK[c] || ''; });
+		s = s.replace(/[\u0400-\u04ff]/g, function (c) { return CYRILLIC[c] || ''; });
+		s = s.normalize ? s.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : s;
+		return s.replace(/[^a-z0-9]+/g, sep).replace(new RegExp('^' + sep + '+|' + sep + '+$', 'g'), '').slice(0, sep === '-' ? 60 : 40);
 	}
 
 	function uid() { return 'f' + Math.random().toString(36).slice(2, 10); }
@@ -112,7 +115,7 @@
 
 	function formParam() { return new URL(window.location.href).searchParams.get('form'); }
 
-	function shortcode(id) { return '[nexform id="' + id + '"]'; }
+	function shortcode(form) { return form.slug ? '[nexform name="' + form.slug + '"]' : '[nexform id="' + form.id + '"]'; }
 
 	function copy(text, done) {
 		var ok = function () { if (done) done(); };
@@ -149,8 +152,8 @@
 			type: 'button',
 			className: 'nfb-code' + (s[0] ? ' is-copied' : ''),
 			title: __('Copy shortcode', 'nex-forms'),
-			onClick: function () { copy(shortcode(props.id), function () { s[1](true); setTimeout(function () { s[1](false); }, 1500); }); }
-		}, h('code', null, shortcode(props.id)), h('span', { className: 'nfb-code-hint' }, s[0] ? __('Copied', 'nex-forms') : __('Copy', 'nex-forms')));
+			onClick: function () { copy(shortcode(props.form), function () { s[1](true); setTimeout(function () { s[1](false); }, 1500); }); }
+		}, h('code', null, shortcode(props.form)), h('span', { className: 'nfb-code-hint' }, s[0] ? __('Copied', 'nex-forms') : __('Copy', 'nex-forms')));
 	}
 
 	function Dashicon(props) { return h('span', { className: 'dashicons dashicons-' + props.icon, 'aria-hidden': 'true' }); }
@@ -207,7 +210,7 @@
 							h('a', { className: 'nfb-title', href: '#', onClick: function (e) { e.preventDefault(); go({ form: f.id }); } }, f.title),
 							f.status === 'draft' ? h('span', { className: 'nfb-badge' }, __('Draft', 'nex-forms')) : null
 						),
-						h('td', null, h(CopyShortcode, { id: f.id })),
+						h('td', null, h(CopyShortcode, { form: f })),
 						h('td', { className: 'nfb-num' }, f.fields),
 						h('td', { className: 'nfb-muted' }, new Date(f.modified).toLocaleString()),
 						h('td', { className: 'nfb-row-actions' },
@@ -484,7 +487,16 @@
 	function FormSettings(props) {
 		var s = props.form.settings;
 		var set = function (patch) { props.onChange(Object.assign({}, s, patch)); };
+		var form = props.form;
 		return h('div', { className: 'nfb-inspector-body' },
+			h(C.TextControl, {
+				label: __('Form name (used in the shortcode)', 'nex-forms'),
+				value: form.slug || '',
+				placeholder: slug(form.title, '-') || 'contact',
+				// Live: transliterate and allow a trailing hyphen while typing; the server trims on save.
+				onChange: function (v) { props.onSlug((slug(v + 'x', '-').slice(0, -1) + (/[\s_-]$/.test(v) ? '-' : '')).replace(/-+$/, /[\s_-]$/.test(v) ? '-' : '').replace(/^-/, '')); },
+				help: sprintf(__('Shortcode: [nexform name="%s"]. Latin letters, numbers and hyphens; must be unique. Old [nexform id="…"] shortcodes keep working.', 'nex-forms'), form.slug || slug(form.title, '-') || '…')
+			}),
 			h(C.TextControl, { label: __('Button text', 'nex-forms'), value: s.submit_label, onChange: function (v) { set({ submit_label: v }); } }),
 			h(C.TextareaControl, { label: __('Success message', 'nex-forms'), value: s.success_message, rows: 3, onChange: function (v) { set({ success_message: v }); }, help: __('Shown in place of the form after sending. Basic HTML allowed.', 'nex-forms') }),
 			h(C.TextControl, { label: __('Redirect after sending (optional)', 'nex-forms'), type: 'url', placeholder: 'https://', value: s.redirect_url, onChange: function (v) { set({ redirect_url: v }); }, help: __('Leave empty to show the success message.', 'nex-forms') }),
@@ -576,11 +588,13 @@
 		var ls = useState(null), loadError = ls[0], setLoadError = ls[1];
 		var n = useNotice(), toast = n[0], notify = n[1];
 		var formRef = useRef(null);
+		var savedRef = useRef(null);
 		formRef.current = form;
 
 		useEffect(function () {
 			apiFetch({ path: API + '/forms/' + props.id }).then(function (f) {
 				f.fields.forEach(function (x) { x._nameLocked = true; });
+				savedRef.current = { id: f.id, slug: f.slug };
 				setForm(f);
 			}, function (e) { setLoadError(errorText(e)); });
 		}, [props.id]);
@@ -598,9 +612,11 @@
 			apiFetch({ path: API + '/forms/' + props.id, method: 'PUT', data: current })
 				.then(function (f) {
 					f.fields.forEach(function (x) { x._nameLocked = true; });
+					savedRef.current = { id: f.id, slug: f.slug };
+					var wanted = current.slug;
 					setForm(f);
 					setDirty(false);
-					notify(__('Form saved.', 'nex-forms'));
+					notify(wanted && wanted !== f.slug ? sprintf(__('Form saved. The name “%1$s” was taken, so it is now “%2$s”.', 'nex-forms'), wanted, f.slug) : __('Form saved.', 'nex-forms'));
 				})
 				.catch(function (e) { notify(errorText(e), 'error'); })
 				.then(function () { setSaving(false); });
@@ -676,7 +692,7 @@
 		} else if (activeTab === 'design') {
 			inspector = h(DesignSettings, { form: form, onChange: function (d) { update({ design: d }); } });
 		} else {
-			inspector = h(FormSettings, { form: form, onChange: function (s) { update({ settings: s }); } });
+			inspector = h(FormSettings, { form: form, onChange: function (s) { update({ settings: s }); }, onSlug: function (v) { update({ slug: v }); } });
 		}
 
 		return h('div', { className: 'nfb-editor' },
@@ -687,7 +703,7 @@
 					go({});
 				} }),
 				h('input', { className: 'nfb-title-input', value: form.title, 'aria-label': __('Form name', 'nex-forms'), onChange: function (e) { update({ title: e.target.value }); } }),
-				h(CopyShortcode, { id: form.id }),
+				h(CopyShortcode, { form: savedRef.current || form }),
 				h('div', { className: 'nfb-topbar-spacer' }),
 				h(C.ToggleControl, { className: 'nfb-publish', label: form.status === 'publish' ? __('Live', 'nex-forms') : __('Draft', 'nex-forms'), checked: form.status === 'publish', onChange: function (v) { update({ status: v ? 'publish' : 'draft' }); }, __nextHasNoMarginBottom: true }),
 				h(C.Button, { variant: 'primary', onClick: save, isBusy: saving, disabled: saving || !dirty }, dirty ? __('Save', 'nex-forms') : __('Saved', 'nex-forms'))

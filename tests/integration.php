@@ -116,6 +116,33 @@ ok( 200 === $s && null === NexForms_Forms::get( $dup['id'] ), 'delete form' );
 list( $s ) = req( 'GET', '/nexforms/v1/forms/999999' );
 ok( 404 === $s, '404 for missing form' );
 
+echo "Form names (shortcode)\n";
+wp_set_current_user( 1 );
+list( , $a ) = req( 'POST', '/nexforms/v1/forms', array( 'title' => 'Контакт форма' ) );
+ok( 'kontakt-forma' === $a['slug'], 'name made from Cyrillic title: ' . $a['slug'] );
+list( , $b ) = req( 'POST', '/nexforms/v1/forms', array( 'title' => 'Φόρμα επικοινωνίας', 'slug' => 'Kontakt Forma' ) );
+ok( 'kontakt-forma-2' === $b['slug'], 'typed name made unique: ' . $b['slug'] );
+list( , $c ) = req( 'POST', '/nexforms/v1/forms', array( 'title' => '!!!', 'status' => 'draft' ) );
+ok( 'form-' . $c['id'] === $c['slug'], 'unusable title falls back to form-<id> (draft too)' );
+list( , $a2 ) = req( 'PUT', '/nexforms/v1/forms/' . $a['id'], array_merge( $a, array( 'slug' => 'contact-bg' ) ) );
+ok( 'contact-bg' === $a2['slug'], 'name can be changed' );
+wp_set_current_user( 0 );
+ok( str_contains( do_shortcode( '[nexform name="contact-bg"]' ), 'nf' . $a['id'] . '-' ), '[nexform name="…"] renders the form' );
+ok( str_contains( do_shortcode( '[nexform id="contact-bg"]' ), 'nf' . $a['id'] . '-' ), 'id="name" also works' );
+ok( str_contains( do_shortcode( '[nexform id="' . $a['id'] . '"]' ), 'nf' . $a['id'] . '-' ), 'numeric id still works' );
+ok( '' === do_shortcode( '[nexform name="no-such-form"]' ), 'unknown name renders nothing' );
+wp_set_current_user( 1 );
+list( , $l ) = req( 'GET', '/nexforms/v1/forms' );
+ok( in_array( 'contact-bg', array_column( $l, 'slug' ), true ), 'list returns names' );
+foreach ( array( $a['id'], $b['id'], $c['id'] ) as $x ) { NexForms_Forms::delete( $x ); }
+wp_dequeue_script( 'nexforms' );
+wp_dequeue_script( 'nexforms-turnstile' ); // Keep the later asset checks independent of these renders.
+ok( 'GR' === NexForms_Schema::default_country(), 'phone default country on this en_US test site' );
+$bg = fn() => 'bg_BG';
+add_filter( 'locale', $bg );
+ok( 'BG' === NexForms_Schema::field( 'phone' )['country'], 'bg_BG site → phone defaults to BG' );
+remove_filter( 'locale', $bg );
+
 echo "Settings\n";
 ok( NexForms_Countries::EUROPE === NexForms_Settings::defaults()['preferred_countries'], 'default phone list = all of Europe' );
 $ordered = array_column( NexForms_Countries::ordered( NexForms_Countries::EUROPE ), 'iso' );

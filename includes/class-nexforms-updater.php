@@ -140,9 +140,34 @@ final class NexForms_Updater {
 			'download_link' => $release['package'] ?? '',
 			'sections'      => array(
 				'description' => esc_html__( 'Lightweight contact forms: visual builder, validation, phone country picker, Cloudflare Turnstile and themeable designs. Sends through wp_mail (FluentSMTP), stores no submissions.', 'nex-forms' ),
-				'changelog'   => '<pre style="white-space:pre-wrap;font:inherit">' . esc_html( $notes ) . '</pre>',
+				'changelog'   => self::notes_html( $notes ),
 			),
 		);
+	}
+
+	/** Minimal, safe Markdown for release notes: "- " lists, **bold**, *italic*, `code`. Everything is escaped first. */
+	public static function notes_html( string $md ): string {
+		$html = '';
+		$list = false;
+		foreach ( preg_split( '/\R/', trim( $md ) ) as $line ) {
+			$text = esc_html( trim( $line ) );
+			$text = preg_replace( '/\*\*(.+?)\*\*/', '<strong>$1</strong>', $text );
+			$text = preg_replace( '/(?<![*\w])\*(?!\s)(.+?)(?<!\s)\*(?![*\w])/', '<em>$1</em>', $text );
+			$text = preg_replace( '/`([^`]+)`/', '<code>$1</code>', $text );
+			if ( preg_match( '/^[-*]\s+(.*)$/', $text, $m ) ) {
+				$html .= ( $list ? '' : '<ul>' ) . '<li>' . $m[1] . '</li>';
+				$list  = true;
+				continue;
+			}
+			if ( $list ) {
+				$html .= '</ul>';
+				$list  = false;
+			}
+			if ( '' !== $text ) {
+				$html .= '<p>' . $text . '</p>';
+			}
+		}
+		return $html . ( $list ? '</ul>' : '' );
 	}
 
 	/** Add the token (private repos) and the binary Accept header for asset downloads from this repo. */

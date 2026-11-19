@@ -37,8 +37,9 @@ final class NexForms_Render {
 	}
 
 	public static function shortcode( $atts ): string {
-		$atts = shortcode_atts( array( 'id' => 0 ), $atts, 'nexform' );
-		$form = NexForms_Forms::get( (int) $atts['id'] );
+		// [nexform name="contact"] or [nexform id="12"]; id also accepts a name.
+		$atts = shortcode_atts( array( 'id' => '', 'name' => '' ), $atts, 'nexform' );
+		$form = NexForms_Forms::find( (string) ( '' !== $atts['name'] ? $atts['name'] : $atts['id'] ) );
 		if ( ! $form ) {
 			return current_user_can( 'manage_options' ) ? '<p><em>' . esc_html__( 'NexForms: form not found.', 'nex-forms' ) . '</em></p>' : '';
 		}

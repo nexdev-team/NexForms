@@ -33,11 +33,12 @@ Installed sites update from GitHub Releases like any other plugin: **Plugins →
 ### Publishing a release
 
 ```
+# first add a "## 0.2.0" section to CHANGELOG.md (English) and commit it
 bin/release.sh 0.2.0      # sets the version in nex-forms.php, commits, tags v0.2.0
 git push --follow-tags    # GitHub Action builds nex-forms.zip and publishes the release
 ```
 
-The Action fails if the tag and the plugin version differ. Release notes are the commit subjects since the previous tag.
+The Action fails if the tag and the plugin version differ or CHANGELOG.md has no section for the version. That section becomes the release notes and the changelog in WordPress' *View details*.
 
 ## Usage
 

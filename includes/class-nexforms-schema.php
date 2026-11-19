@@ -27,6 +27,21 @@ final class NexForms_Schema {
 		);
 	}
 
+	/** Phone default from the site language: bg_BG → BG, el → GR, de_AT → AT; otherwise the first preferred country. */
+	public static function default_country(): string {
+		$locale = function_exists( 'get_locale' ) ? get_locale() : '';
+		if ( 'el' === $locale ) {
+			return 'GR';
+		}
+		$parts = explode( '_', $locale );
+		$region = strtoupper( $parts[1] ?? '' );
+		if ( in_array( $region, NexForms_Countries::EUROPE, true ) ) {
+			return $region;
+		}
+		$preferred = class_exists( 'NexForms_Settings' ) ? (array) ( get_option( NexForms_Settings::OPTION, array() )['preferred_countries'] ?? array() ) : array();
+		return $preferred && NexForms_Countries::exists( (string) $preferred[0] ) ? (string) $preferred[0] : 'GR';
+	}
+
 	public static function default_settings(): array {
 		return array(
 			'submit_label'    => __( 'Send message', 'nex-forms' ),
@@ -69,7 +84,7 @@ final class NexForms_Schema {
 			'pattern'         => '',
 			'pattern_message' => '',
 			'rows'            => 5,
-			'country'         => 'GR',
+			'country'         => self::default_country(),
 		);
 		if ( in_array( $type, array( 'select', 'radio', 'checkboxes' ), true ) && empty( $props['options'] ) ) {
 			$base['options'] = array(
@@ -88,6 +103,11 @@ final class NexForms_Schema {
 		$out['title']  = sanitize_text_field( (string) ( $in['title'] ?? '' ) );
 		$out['title']  = '' === $out['title'] ? __( 'Untitled form', 'nex-forms' ) : $out['title'];
 		$out['status'] = ( $in['status'] ?? 'publish' ) === 'draft' ? 'draft' : 'publish';
+		// Shortcode name: typed by the user, or made from the title. Uniqueness is enforced on save.
+		$out['slug'] = self::slugify( (string) ( $in['slug'] ?? '' ) );
+		if ( '' === $out['slug'] ) {
+			$out['slug'] = self::slugify( $out['title'] );
+		}
 
 		$fields = array();
 		$names  = array();
@@ -180,8 +200,8 @@ final class NexForms_Schema {
 		$f['pattern']         = ( '' !== $pattern && strlen( $pattern ) <= 300 && self::pattern_ok( $pattern ) ) ? $pattern : '';
 		$f['pattern_message'] = sanitize_text_field( (string) ( $raw['pattern_message'] ?? '' ) );
 		$f['rows']            = max( 2, min( 20, (int) ( $raw['rows'] ?? 5 ) ) );
-		$country              = strtoupper( (string) ( $raw['country'] ?? 'GR' ) );
-		$f['country']         = NexForms_Countries::exists( $country ) ? $country : 'GR';
+		$country              = strtoupper( (string) ( $raw['country'] ?? '' ) );
+		$f['country']         = NexForms_Countries::exists( $country ) ? $country : self::default_country();
 
 		if ( in_array( $type, array( 'select', 'radio', 'checkboxes' ), true ) ) {
 			$seen = array();
@@ -210,6 +230,28 @@ final class NexForms_Schema {
 	public static function pattern_match( string $pattern, string $value ): bool {
 		$pattern = str_replace( array( '\#', '#' ), array( '#', '\#' ), $pattern );
 		return 1 === @preg_match( '#^(?:' . $pattern . ')$#u', $value ); // phpcs:ignore WordPress.PHP.NoSilencedErrors
+	}
+
+	private const TRANSLIT = array(
+		// Greek.
+		'α' => 'a', 'ά' => 'a', 'β' => 'v', 'γ' => 'g', 'δ' => 'd', 'ε' => 'e', 'έ' => 'e', 'ζ' => 'z', 'η' => 'i', 'ή' => 'i',
+		'θ' => 'th', 'ι' => 'i', 'ί' => 'i', 'ϊ' => 'i', 'ΐ' => 'i', 'κ' => 'k', 'λ' => 'l', 'μ' => 'm', 'ν' => 'n', 'ξ' => 'x',
+		'ο' => 'o', 'ό' => 'o', 'π' => 'p', 'ρ' => 'r', 'σ' => 's', 'ς' => 's', 'τ' => 't', 'υ' => 'y', 'ύ' => 'y', 'ϋ' => 'y',
+		'ΰ' => 'y', 'φ' => 'f', 'χ' => 'ch', 'ψ' => 'ps', 'ω' => 'o', 'ώ' => 'o',
+		// Bulgarian / Russian Cyrillic.
+		'а' => 'a', 'б' => 'b', 'в' => 'v', 'г' => 'g', 'д' => 'd', 'е' => 'e', 'ё' => 'e', 'ж' => 'zh', 'з' => 'z', 'и' => 'i',
+		'й' => 'y', 'к' => 'k', 'л' => 'l', 'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's', 'т' => 't',
+		'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'ts', 'ч' => 'ch', 'ш' => 'sh', 'щ' => 'sht', 'ъ' => 'a', 'ы' => 'y', 'ь' => 'y',
+		'э' => 'e', 'ю' => 'yu', 'я' => 'ya',
+	);
+
+	/** Latin-only slug (a-z, 0-9, hyphen) from any title, transliterating Greek and Cyrillic. */
+	public static function slugify( string $text ): string {
+		$text = mb_strtolower( wp_strip_all_tags( $text ), 'UTF-8' );
+		$text = strtr( $text, self::TRANSLIT );
+		$text = strtolower( remove_accents( $text ) );
+		$text = preg_replace( '/[^a-z0-9]+/', '-', $text );
+		return substr( trim( $text, '-' ), 0, 60 );
 	}
 
 	public static function valid_date( string $v ): bool {

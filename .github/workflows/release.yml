@@ -38,13 +38,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          PREV=$(git describe --tags --abbrev=0 "$GITHUB_REF_NAME^" 2>/dev/null || true)
-          if [ -n "$PREV" ]; then
-            NOTES=$(git log --pretty='- %s' "$PREV..$GITHUB_REF_NAME")
-          else
-            NOTES="First release."
-          fi
+          # Release notes come from this version's section in CHANGELOG.md (English).
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="$VERSION" '$0 ~ "^## " { if (p) exit; if ($2 == v) { p=1; next } } p' CHANGELOG.md > notes.md
+          [ -s notes.md ] || { echo "::error::CHANGELOG.md has no '## $VERSION' section"; exit 1; }
+          cat notes.md
           gh release create "$GITHUB_REF_NAME" nex-forms.zip nex-forms.zip.sha256 \
             --title "NexForms ${GITHUB_REF_NAME#v}" \
-            --notes "$NOTES" \
+            --notes-file notes.md \
             --latest

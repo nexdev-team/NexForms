@@ -43,6 +43,7 @@ final class NexForms_Forms {
 		$form['fields']   = isset( $config['fields'] ) ? (array) $config['fields'] : $form['fields'];
 		$form['id']       = $id;
 		$form['title']    = $post->post_title;
+		$form['slug']     = self::valid_slug( $post->post_name ) ? $post->post_name : '';
 		$form['status']   = 'publish' === $post->post_status ? 'publish' : 'draft';
 		$form['modified'] = get_post_modified_time( 'c', true, $post );
 		return $form;
@@ -65,6 +66,7 @@ final class NexForms_Forms {
 			$out[]  = array(
 				'id'       => $p->ID,
 				'title'    => $p->post_title,
+				'slug'     => self::valid_slug( $p->post_name ) ? $p->post_name : '',
 				'status'   => 'publish' === $p->post_status ? 'publish' : 'draft',
 				'fields'   => is_array( $config['fields'] ?? null ) ? count( $config['fields'] ) : 0,
 				'modified' => get_post_modified_time( 'c', true, $p ),
@@ -84,6 +86,11 @@ final class NexForms_Forms {
 			'post_title'  => $data['title'],
 			'post_status' => $data['status'],
 		);
+		$slug = (string) ( $data['slug'] ?? '' );
+		if ( '' !== $slug ) {
+			// Forced 'publish' so drafts get a unique name too (WordPress skips the check for drafts).
+			$postarr['post_name'] = wp_unique_post_slug( $slug, $id, 'publish', self::POST_TYPE, 0 );
+		}
 		if ( $id ) {
 			$postarr['ID'] = $id;
 			$result        = wp_update_post( wp_slash( $postarr ), true );
@@ -99,8 +106,38 @@ final class NexForms_Forms {
 			'settings' => $data['settings'],
 			'design'   => $data['design'],
 		);
+		if ( '' === $slug || ! self::valid_slug( (string) get_post_field( 'post_name', (int) $result ) ) ) {
+			// Nothing usable from the title (e.g. only symbols): fall back to form-<id>.
+			wp_update_post( array( 'ID' => (int) $result, 'post_name' => wp_unique_post_slug( 'form-' . (int) $result, (int) $result, 'publish', self::POST_TYPE, 0 ) ) );
+		}
 		update_post_meta( (int) $result, self::META_KEY, wp_slash( wp_json_encode( $config, JSON_UNESCAPED_UNICODE ) ) );
 		return (int) $result;
+	}
+
+	/** Find a form by numeric ID or by its shortcode name. */
+	public static function find( string $ref ): ?array {
+		$ref = trim( $ref );
+		if ( '' === $ref ) {
+			return null;
+		}
+		if ( ctype_digit( $ref ) ) {
+			return self::get( (int) $ref );
+		}
+		$ids = get_posts(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => array( 'publish', 'draft' ),
+				'name'           => sanitize_title( $ref ),
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			)
+		);
+		return $ids ? self::get( (int) $ids[0] ) : null;
+	}
+
+	public static function valid_slug( string $slug ): bool {
+		return (bool) preg_match( '/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug );
 	}
 
 	public static function delete( int $id ): bool {
