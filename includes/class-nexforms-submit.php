@@ -351,7 +351,8 @@ final class NexForms_Submit {
 			}
 		}
 		$name = trim( preg_replace( '/[\r\n"<>,;]+/', ' ', $name ) );
-		return '' !== $name ? sprintf( '"%s" <%s>', $name, $email ) : $email;
+		// No quotes: wp_mail() hands the name to PHPMailer, which encodes it; quotes would end up inside the name.
+		return '' !== $name ? sprintf( '%s <%s>', $name, $email ) : $email;
 	}
 
 	public static function tokens( string $text, array $form, array $values ): string {

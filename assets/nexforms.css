@@ -158,6 +158,10 @@
 	border-radius: var(--nf-radius);
 	cursor: pointer;
 	text-decoration: none;
+	text-transform: none;
+	letter-spacing: normal;
+	min-height: 0;
+	margin: 0;
 	transition: filter .15s ease, transform .1s ease, box-shadow .15s ease;
 }
 .nf .nf-submit:hover { filter: brightness(1.08); }

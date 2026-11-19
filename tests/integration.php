@@ -162,7 +162,7 @@ $m = mails();
 ok( 1 === count( $m ), 'one email sent' );
 ok( array( 'a@example.com', 'b@example.com' ) === $m[0]['to'], 'sent to configured recipients' );
 ok( 'Νέο μήνυμα: Μάσκες από Μαρία' === $m[0]['subject'], 'subject tokens use labels/values' );
-ok( in_array( 'Reply-To: "Μαρία" <maria@example.gr>', $m[0]['headers'], true ), 'Reply-To set to visitor' );
+ok( in_array( 'Reply-To: Μαρία <maria@example.gr>', $m[0]['headers'], true ), 'Reply-To set to visitor (no quotes in name)' );
 ok( ! preg_grep( '/^From:/i', $m[0]['headers'] ), 'From header left to FluentSMTP' );
 ok( str_contains( $m[0]['message'], '+306912345678' ), 'phone normalised to E.164' );
 ok( str_contains( $m[0]['message'], 'landing-a' ) && ! str_contains( $m[0]['message'], 'tampered' ), 'hidden value from schema, not request' );
