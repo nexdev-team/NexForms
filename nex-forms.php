@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       NexForms
  * Description:       Lightweight contact forms: visual builder, validation, phone country picker, Cloudflare Turnstile and themeable designs. Sends through wp_mail (FluentSMTP), stores no submissions.
- * Version:           0.1.7
+ * Version:           0.1.8
  * Requires at least: 6.5
  * Requires PHP:      8.0
  * Author:            NexDev
@@ -14,7 +14,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEXFORMS_VERSION', '0.1.7' );
+define( 'NEXFORMS_VERSION', '0.1.8' );
 define( 'NEXFORMS_FILE', __FILE__ );
 define( 'NEXFORMS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'NEXFORMS_URL', plugin_dir_url( __FILE__ ) );
