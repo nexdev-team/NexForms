@@ -457,14 +457,7 @@ final class NexForms_Submit {
 			return '';
 		}
 		// Use a name field if one exists; strip anything that could break the header.
-		$name = '';
-		foreach ( array( 'name', 'full_name', 'fullname', 'onoma' ) as $key ) {
-			if ( isset( $values[ $key ] ) && '' !== $values[ $key ]['value'] ) {
-				$name = $values[ $key ]['value'];
-				break;
-			}
-		}
-		$name = trim( preg_replace( '/[\r\n"<>,;]+/', ' ', $name ) );
+		$name = trim( preg_replace( '/[\r\n"<>,;]+/', ' ', self::visitor_name( $values ) ) );
 		// No quotes: wp_mail() hands the name to PHPMailer, which encodes it; quotes would end up inside the name.
 		return '' !== $name ? sprintf( '%s <%s>', $name, $email ) : $email;
 	}
@@ -473,6 +466,28 @@ final class NexForms_Submit {
 	 * Replace {site_name}, {form_title}, {ticket} and {<field key>} in a text.
 	 * $html = true escapes the inserted values (for HTML such as the success message).
 	 */
+	/**
+	 * The visitor's name: a field called name / full_name / fullname / onoma, otherwise first + last name
+	 * (first_name / last_name). With $first_only (the {name} token, for "Hello {name}"): only the first name,
+	 * i.e. the first_name field, or the first word of a single name field. Empty when the form has no name.
+	 */
+	public static function visitor_name( array $values, bool $first_only = false ): string {
+		$get = static function ( string $key ) use ( $values ): string {
+			return isset( $values[ $key ] ) ? trim( preg_replace( '/\s+/u', ' ', (string) $values[ $key ]['value'] ) ) : '';
+		};
+		$first = $get( 'first_name' );
+		if ( $first_only && '' !== $first ) {
+			return $first;
+		}
+		foreach ( array( 'name', 'full_name', 'fullname', 'onoma' ) as $key ) {
+			$v = $get( $key );
+			if ( '' !== $v ) {
+				return $first_only ? explode( ' ', $v )[0] : $v;
+			}
+		}
+		return trim( $first . ' ' . $get( 'last_name' ) );
+	}
+
 	public static function tokens( string $text, array $form, array $values, array $context = array(), bool $html = false ): string {
 		$out = preg_replace_callback(
 			'/\{([a-z0-9_]+)\}/',
@@ -487,6 +502,9 @@ final class NexForms_Submit {
 					case 'ticket':
 						$v = (string) ( $context['ticket'] ?? '' );
 						break;
+					case 'name':
+						$v = self::visitor_name( $values, true ); // First name only; empty if the form has no name.
+						break;
 					default:
 						if ( ! isset( $values[ $m[1] ] ) ) {
 							return $m[0];
@@ -498,7 +516,7 @@ final class NexForms_Submit {
 			$text
 		);
 		// Tidy a missing ticket: "message  ." / "[]" / trailing spaces.
-		$out = preg_replace( array( '/\[\s*\]|\(\s*\)/', '/[ \t]{2,}/', '/[ \t]+$/m' ), array( '', ' ', '' ), $out );
+		$out = preg_replace( array( '/\[\s*\]|\(\s*\)/', '/[ \t]{2,}/', '/[ \t]+([,.!])/', '/[ \t]+$/m' ), array( '', ' ', '$1', '' ), $out );
 		return trim( $out );
 	}
 

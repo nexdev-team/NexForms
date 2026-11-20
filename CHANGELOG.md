@@ -3,6 +3,11 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.9
+
+- **`{name}` in the auto-reply is the visitor's first name.** "Hello {name}," now works on forms with separate First name / Last name fields (it used to stay as `{name}`), and uses only the first name ("Hello John,"), also when the form has a single Name field. If the form has no name, the line reads "Hello,".
+- The Reply-To of the notification email still shows the full name.
+
 ## 0.1.8
 
 - **No links in the notification email.** The email no longer shows the page the form was sent from, and the email address and phone number are plain text instead of links. You reply from the inbox, so the links were not needed, and a reply no longer quotes a long address with ad-tracking codes (`gclid`, `_gl`).
