@@ -3,6 +3,11 @@
 Each release's section below is published as the GitHub release notes and shown in WordPress under
 Plugins → NexForms → View details. Write it in English, for site owners: what changed and what to do, if anything.
 
+## 0.1.8
+
+- **No links in the notification email.** The email no longer shows the page the form was sent from, and the email address and phone number are plain text instead of links. You reply from the inbox, so the links were not needed, and a reply no longer quotes a long address with ad-tracking codes (`gclid`, `_gl`).
+- **Safer page address.** The page address is sent by the visitor's browser, so it could be anything. It is now kept only when it is on your own site, without the query string, and is passed only to the `nexforms_submitted` hook, never put in the email.
+
 ## 0.1.7
 
 - **Ticket numbers.** Turn on *Ticket numbers* in a form's Email tab and every message gets a code such as `SUP-00042`. It is added to the email subject (easy to search and thread in the inbox), shown at the top of the email, and can be used in the success message and the auto-reply as `{ticket}`.

@@ -64,7 +64,7 @@ final class NexForms_Submit {
 		}
 
 		$context = array(
-			'page_url' => esc_url_raw( (string) ( $params['nf_page'] ?? '' ) ),
+			'page_url' => self::page_url( (string) ( $params['nf_page'] ?? '' ) ),
 			'ip'       => $ip,
 			'ticket'   => ! empty( $form['settings']['ticket'] ) ? NexForms_Tickets::next( NexForms_Tickets::prefix_for( $form, $params ) ) : '',
 		);
@@ -410,21 +410,13 @@ final class NexForms_Submit {
 				continue;
 			}
 			$val = esc_html( $v['value'] );
-			if ( 'email' === $v['type'] ) {
-				$val = '<a href="mailto:' . esc_attr( $v['value'] ) . '">' . $val . '</a>';
-			} elseif ( 'phone' === $v['type'] ) {
-				$val = '<a href="tel:' . esc_attr( $v['value'] ) . '">' . $val . '</a>';
-			} else {
-				$val = nl2br( $val );
-			}
+			// Plain text only: no links in the email (staff reply from the inbox; visitor input must never become a link).
+			$val = nl2br( $val );
 			$rows .= '<tr><th style="text-align:left;vertical-align:top;padding:10px 14px;background:#f6f7f9;border-bottom:1px solid #e6e8eb;width:34%;font-weight:600">' . esc_html( $v['label'] ) . '</th>'
 				. '<td style="padding:10px 14px;border-bottom:1px solid #e6e8eb">' . $val . '</td></tr>';
 		}
 
 		$meta = esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) ) );
-		if ( '' !== $context['page_url'] ) {
-			$meta .= ' · <a href="' . esc_url( $context['page_url'] ) . '">' . esc_html( $context['page_url'] ) . '</a>';
-		}
 
 		$body = '<!doctype html><html><body style="margin:0;padding:24px;background:#ffffff;font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1d2327">'
 			. '<h2 style="margin:0 0 4px;font-size:18px">' . esc_html( $form['title'] ) . ( '' !== $ticket ? ' <span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:4px;background:#eef2ff;color:#3730a3;font:600 13px/1.5 ui-monospace,Menlo,monospace">' . esc_html( $ticket ) . '</span>' : '' ) . '</h2>'
@@ -607,6 +599,23 @@ final class NexForms_Submit {
 		}
 		$mask = chr( ( 0xFF << ( 8 - $rem ) ) & 0xFF );
 		return ( $ip_bin[ $bytes ] & $mask ) === ( $net_bin[ $bytes ] & $mask );
+	}
+
+	/**
+	 * The page the form was sent from, for hooks only (never shown in the email). The value comes from the
+	 * browser, so keep it only when it is on this site, and drop the query string (gclid, _gl, … tracking).
+	 */
+	private static function page_url( string $raw ): string {
+		$p    = wp_parse_url( $raw );
+		$home = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		$norm = static function ( $h ) {
+			return preg_replace( '/^www\./', '', strtolower( (string) $h ) );
+		};
+		if ( empty( $p['host'] ) || $norm( $p['host'] ) !== $norm( $home ) ) {
+			return '';
+		}
+		$scheme = ( $p['scheme'] ?? '' ) === 'http' ? 'http' : 'https';
+		return esc_url_raw( $scheme . '://' . $p['host'] . ( $p['path'] ?? '/' ) );
 	}
 
 	private static function ok( array $form, array $values = array(), array $context = array() ): WP_REST_Response {
